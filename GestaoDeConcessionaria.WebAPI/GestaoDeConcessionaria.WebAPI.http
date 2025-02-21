@@ -1,6 +1,0 @@
-@GestaoDeConcessionaria.WebAPI_HostAddress = http://localhost:5263
-
-GET {{GestaoDeConcessionaria.WebAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
