@@ -1,4 +1,6 @@
-﻿using GestaoDeConcessionaria.Application.Interfaces;
+﻿using GestaoDeConcessionaria.Application.DTOs;
+using GestaoDeConcessionaria.Application.Factories;
+using GestaoDeConcessionaria.Application.Interfaces;
 using GestaoDeConcessionaria.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +12,24 @@ namespace GestaoDeConcessionaria.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Vendedor")]
-    public class VendasController(IVendaService servicoVenda, IDistributedCache cache) : ControllerBase
+    public class VendasController : ControllerBase
     {
-        private readonly IVendaService _servicoVenda = servicoVenda;
-        private readonly IDistributedCache _cache = cache;
+        private readonly IVendaService _servicoVenda;
+        private readonly IVeiculoService _servicoVeiculo;
+        private readonly IConcessionariaService _servicoConcessionaria;
+        private readonly IClienteService _servicoCliente;
+        private readonly IDistributedCache _cache;
+
+        public VendasController(IVendaService servicoVenda, IVeiculoService servicoVeiculo,
+                                IConcessionariaService servicoConcessionaria, IClienteService servicoCliente,
+                                IDistributedCache cache)
+        {
+            _servicoVenda = servicoVenda;
+            _servicoVeiculo = servicoVeiculo;
+            _servicoConcessionaria = servicoConcessionaria;
+            _servicoCliente = servicoCliente;
+            _cache = cache;
+        }
 
         [HttpGet]
         [AllowAnonymous]
@@ -45,10 +61,24 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Adicionar([FromBody] Venda venda)
+        public async Task<IActionResult> Adicionar([FromBody] VendaDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            var veiculo = await _servicoVeiculo.ObterPorIdAsync(dto.VeiculoId);
+            if (veiculo == null)
+                return BadRequest("Veículo não encontrado.");
+
+            var concessionaria = await _servicoConcessionaria.ObterPorIdAsync(dto.ConcessionariaId);
+            if (concessionaria == null)
+                return BadRequest("Concessionária não encontrada.");
+
+            var cliente = await _servicoCliente.ObterPorIdAsync(dto.ClienteId);
+            if (cliente == null)
+                return BadRequest("Cliente não encontrado.");
+
+            var venda = VendaFactory.Criar(dto, veiculo, concessionaria, cliente);
             await _servicoVenda.AdicionarAsync(venda);
             await _cache.RemoveAsync("lista_vendas");
             return CreatedAtAction(nameof(ObterPorId), new { id = venda.Id }, venda);

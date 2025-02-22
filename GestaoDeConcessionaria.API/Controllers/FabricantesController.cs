@@ -1,4 +1,6 @@
-﻿using GestaoDeConcessionaria.Application.Interfaces;
+﻿using GestaoDeConcessionaria.Application.DTOs;
+using GestaoDeConcessionaria.Application.Factories;
+using GestaoDeConcessionaria.Application.Interfaces;
 using GestaoDeConcessionaria.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +12,16 @@ namespace GestaoDeConcessionaria.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Administrador")]
-    public class FabricantesController(IFabricanteService servicoFabricante, IDistributedCache cache) : ControllerBase
+    public class FabricantesController : ControllerBase
     {
-        private readonly IFabricanteService _servicoFabricante = servicoFabricante;
-        private readonly IDistributedCache _cache = cache;
+        private readonly IFabricanteService _servicoFabricante;
+        private readonly IDistributedCache _cache;
+
+        public FabricantesController(IFabricanteService servicoFabricante, IDistributedCache cache)
+        {
+            _servicoFabricante = servicoFabricante;
+            _cache = cache;
+        }
 
         [HttpGet]
         [AllowAnonymous]
@@ -45,21 +53,26 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Adicionar([FromBody] Fabricante fabricante)
+        public async Task<IActionResult> Adicionar([FromBody] FabricanteDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            var fabricante = FabricanteFactory.Criar(dto);
             await _servicoFabricante.AdicionarAsync(fabricante);
             await _cache.RemoveAsync("lista_fabricantes");
             return CreatedAtAction(nameof(ObterPorId), new { id = fabricante.Id }, fabricante);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Atualizar(int id, [FromBody] Fabricante fabricante)
+        public async Task<IActionResult> Atualizar(int id, [FromBody] FabricanteDTO dto)
         {
-            if (id != fabricante.Id)
-                return BadRequest("Id divergente.");
-            await _servicoFabricante.AtualizarAsync(fabricante);
+            var fabricanteExistente = await _servicoFabricante.ObterPorIdAsync(id);
+            if (fabricanteExistente == null)
+                return NotFound();
+
+            FabricanteFactory.Atualizar(fabricanteExistente, dto);
+            await _servicoFabricante.AtualizarAsync(fabricanteExistente);
             await _cache.RemoveAsync("lista_fabricantes");
             return NoContent();
         }

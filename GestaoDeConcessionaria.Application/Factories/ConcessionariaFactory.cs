@@ -1,12 +1,18 @@
-﻿using GestaoDeConcessionaria.Domain.Entities;
+﻿using GestaoDeConcessionaria.Application.DTOs;
+using GestaoDeConcessionaria.Domain.Entities;
 
 namespace GestaoDeConcessionaria.Application.Factories
 {
     public static class ConcessionariaFactory
     {
-        public static Concessionaria Criar(string nome, string rua, string cidade, string estado, string cep, string telefone, string email, int capacidade)
+        public static Concessionaria Criar(ConcessionariaDTO dto)
         {
-            return new Concessionaria(nome, rua, cidade, estado, cep, telefone, email, capacidade);
+            return new Concessionaria(dto.Nome, dto.Rua, dto.Cidade, dto.Estado, dto.CEP, dto.Telefone, dto.Email, dto.CapacidadeMaximaVeiculos);
+        }
+
+        public static void Atualizar(Concessionaria entidade, ConcessionariaDTO dto)
+        {
+            entidade.Atualizar(dto.Nome, dto.Rua, dto.Cidade, dto.Estado, dto.CEP, dto.Telefone, dto.Email, dto.CapacidadeMaximaVeiculos);
         }
     }
 }

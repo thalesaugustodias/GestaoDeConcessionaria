@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
@@ -7,45 +8,57 @@ namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
 {
     public class SwaggerConfigureOptions : IConfigureOptions<SwaggerGenOptions>
     {
+        private readonly IServiceProvider serviceProvider;
+        public SwaggerConfigureOptions(IServiceProvider serviceProvider)
+        {
+            this.serviceProvider = serviceProvider;
+        }
+
         public void Configure(SwaggerGenOptions options)
         {
-            options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+            options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Title = "SGC - Sistema Gerenciador de Veículos",
-                Version = "v1",
                 Description = "Desafio Técnico",
-                Contact = new Microsoft.OpenApi.Models.OpenApiContact
+                Contact = new OpenApiContact
                 {
                     Name = "Thales Augusto Dias",
                     Email = "thalesaugustodias98@gmail.com"
                 },
-                License = new Microsoft.OpenApi.Models.OpenApiLicense
+                License = new OpenApiLicense
                 {
                     Name = "Licença",
                     Url = new Uri("https://opensource.org/licenses/MIT")
                 }
             });
 
-            options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
-                Description = "JWT Authorization header using the Bearer scheme",
-                Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT"
+                Description = "Utilize o esquema de autenticação Bearer para JWT. " +
+                  "Insira o prefixo 'Bearer' seguido de um espaço e, em seguida, o token JWT válido. " +
+                  "Exemplo: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer"
             });
 
-            options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
-                    new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                    new OpenApiSecurityScheme
                     {
-                        Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                        Reference = new OpenApiReference
                         {
-                            Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                            Type = ReferenceType.SecurityScheme,
                             Id = "Bearer"
-                        }
+                        },
+                        Scheme = "oauth2",
+                        Name = "Bearer",
+                        In = ParameterLocation.Header,
                     },
-                    Array.Empty<string>()
+                    new List<string>()
                 }
             });
 

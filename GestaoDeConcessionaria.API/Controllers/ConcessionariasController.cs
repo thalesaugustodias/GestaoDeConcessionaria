@@ -1,4 +1,6 @@
-﻿using GestaoDeConcessionaria.Application.Interfaces;
+﻿using GestaoDeConcessionaria.Application.DTOs;
+using GestaoDeConcessionaria.Application.Factories;
+using GestaoDeConcessionaria.Application.Interfaces;
 using GestaoDeConcessionaria.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -46,16 +48,14 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Adicionar([FromBody] Concessionaria concessionaria)
+        public async Task<IActionResult> Adicionar([FromBody] ConcessionariaDTO concessionariaDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Exemplo de integração com API externa (ViaCEP) para validar o CEP.
             try
             {
                 var client = _clientFactory.CreateClient();
-                var response = await client.GetAsync($"https://viacep.com.br/ws/{concessionaria.CEP}/json/");
+                var response = await client.GetAsync($"https://viacep.com.br/ws/{concessionariaDto.CEP}/json/");
                 if (!response.IsSuccessStatusCode)
                 {
                     return BadRequest("CEP inválido ou API de CEP indisponível.");
@@ -66,17 +66,23 @@ namespace GestaoDeConcessionaria.API.Controllers
                 return BadRequest("Erro ao validar CEP: " + ex.Message);
             }
 
+            var concessionaria = ConcessionariaFactory.Criar(concessionariaDto);
+
             await _servicoConcessionaria.AdicionarAsync(concessionaria);
             await _cache.RemoveAsync("lista_concessionarias");
             return CreatedAtAction(nameof(ObterPorId), new { id = concessionaria.Id }, concessionaria);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Atualizar(int id, [FromBody] Concessionaria concessionaria)
+        public async Task<IActionResult> Atualizar(int id, [FromBody] ConcessionariaDTO concessionariaDto)
         {
-            if (id != concessionaria.Id)
-                return BadRequest("Id divergente.");
-            await _servicoConcessionaria.AtualizarAsync(concessionaria);
+            var concessionariaExistente = await _servicoConcessionaria.ObterPorIdAsync(id);
+            if (concessionariaExistente == null)
+                return NotFound();
+
+            ConcessionariaFactory.Atualizar(concessionariaExistente, concessionariaDto);
+
+            await _servicoConcessionaria.AtualizarAsync(concessionariaExistente);
             await _cache.RemoveAsync("lista_concessionarias");
             return NoContent();
         }

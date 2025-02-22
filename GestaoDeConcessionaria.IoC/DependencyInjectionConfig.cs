@@ -4,6 +4,7 @@ using GestaoDeConcessionaria.Domain.Entities;
 using GestaoDeConcessionaria.Domain.Interfaces;
 using GestaoDeConcessionaria.Infrastructure.Context;
 using GestaoDeConcessionaria.Infrastructure.Repository;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,6 +35,9 @@ namespace GestaoDeConcessionaria.IoC
             services.AddIdentity<Usuario, IdentityRole>()
                 .AddEntityFrameworkStores<AplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            // HttpContextAccessor
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             return services;
         }

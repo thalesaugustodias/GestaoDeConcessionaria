@@ -32,7 +32,7 @@ namespace GestaoDeConcessionaria.Application.Services
             {
                 new Claim(JwtRegisteredClaimNames.Sub, usuario.Id),
                 new Claim("nomeUsuario", usuario.UserName),
-                new Claim("nivelAcesso", usuario.NivelAcesso.ToString())
+                new Claim(ClaimTypes.Role, usuario.NivelAcesso.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Chave"]));

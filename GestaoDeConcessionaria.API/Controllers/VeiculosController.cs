@@ -1,4 +1,6 @@
-﻿using GestaoDeConcessionaria.Application.Interfaces;
+﻿using GestaoDeConcessionaria.Application.DTOs;
+using GestaoDeConcessionaria.Application.Factories;
+using GestaoDeConcessionaria.Application.Interfaces;
 using GestaoDeConcessionaria.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +12,18 @@ namespace GestaoDeConcessionaria.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Gerente")]
-    public class VeiculosController(IVeiculoService servicoVeiculo, IDistributedCache cache) : ControllerBase
+    public class VeiculosController : ControllerBase
     {
-        private readonly IVeiculoService _servicoVeiculo = servicoVeiculo;
-        private readonly IDistributedCache _cache = cache;
+        private readonly IVeiculoService _servicoVeiculo;
+        private readonly IFabricanteService _servicoFabricante;
+        private readonly IDistributedCache _cache;
+
+        public VeiculosController(IVeiculoService servicoVeiculo, IFabricanteService servicoFabricante, IDistributedCache cache)
+        {
+            _servicoVeiculo = servicoVeiculo;
+            _servicoFabricante = servicoFabricante;
+            _cache = cache;
+        }
 
         [HttpGet]
         [AllowAnonymous]
@@ -45,21 +55,33 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Adicionar([FromBody] Veiculo veiculo)
+        public async Task<IActionResult> Adicionar([FromBody] VeiculoDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            var fabricante = await _servicoFabricante.ObterPorIdAsync(dto.FabricanteId);
+            if (fabricante == null)
+                return BadRequest("Fabricante não encontrado.");
+
+            var veiculo = VeiculoFactory.Criar(dto, fabricante);
             await _servicoVeiculo.AdicionarAsync(veiculo);
             await _cache.RemoveAsync("lista_veiculos");
             return CreatedAtAction(nameof(ObterPorId), new { id = veiculo.Id }, veiculo);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Atualizar(int id, [FromBody] Veiculo veiculo)
+        public async Task<IActionResult> Atualizar(int id, [FromBody] VeiculoDTO dto)
         {
-            if (id != veiculo.Id)
-                return BadRequest("Id divergente.");
-            await _servicoVeiculo.AtualizarAsync(veiculo);
+            var veiculoExistente = await _servicoVeiculo.ObterPorIdAsync(id);
+            if (veiculoExistente == null)
+                return NotFound();
+
+            var fabricante = await _servicoFabricante.ObterPorIdAsync(dto.FabricanteId);
+            if (fabricante == null)
+                return BadRequest("Fabricante não encontrado.");
+
+            VeiculoFactory.Atualizar(veiculoExistente, dto, fabricante);
+            await _servicoVeiculo.AtualizarAsync(veiculoExistente);
             await _cache.RemoveAsync("lista_veiculos");
             return NoContent();
         }

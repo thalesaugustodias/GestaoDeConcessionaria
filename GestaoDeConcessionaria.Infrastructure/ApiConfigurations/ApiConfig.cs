@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net;
+using System.Text.Json;
 
 namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
 {
@@ -31,26 +32,6 @@ namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
 
             });
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("IgnoreAuthorizationInDevelopment", policy =>
-                {
-                    policy.RequireAssertion(context =>
-                    {
-                        var httpContext = (context as AuthorizationHandlerContext)?.Resource as HttpContext;
-
-                        if (httpContext != null)
-                        {
-                            var environment = httpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
-
-                            return environment?.IsDevelopment() ?? false;
-                        }
-
-                        return false;
-                    });
-                });
-            });
-
             return services;
         }
 
@@ -65,13 +46,18 @@ namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
 
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/json";
-                    await context.Response.WriteAsync("Ocorreu um erro interno. Por favor, tente novamente mais tarde.");
+                    var errorResponse = new
+                    {
+                        Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde.",
+                        ExceptionMessage = env.IsDevelopment() ? exception?.Message : null,
+                        StackTrace = env.IsDevelopment() ? exception?.StackTrace : null
+                    };
+
+                    var jsonResponse = JsonSerializer.Serialize(errorResponse);
+
+                    await context.Response.WriteAsync(jsonResponse);
                 });
             });
-
-            app.UseHttpsRedirection();
-
-            app.UseRouting();
 
             app.UseStaticFiles();
 
