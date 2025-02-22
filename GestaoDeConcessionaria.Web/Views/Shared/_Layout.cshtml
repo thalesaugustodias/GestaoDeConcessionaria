@@ -5,85 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Sistema de Gestão De Concessionárias De Veículos - SGC" />
     <title>SGC - Sistema de Gestão De Concessionárias De Veículos</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="~/dist/img/favicon.ico">
-    
+
     <!-- CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/dist/css/adminlte.min.css" />
     <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" href="~/plugins/toastr/toastr.min.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" />
-    
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --sidebar-width: 250px;
-        }
-        
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f6f9;
-        }
-        
-        .main-sidebar {
-            width: var(--sidebar-width);
-            background: var(--primary-color);
-        }
-        
-        .nav-sidebar .nav-link {
-            padding: 0.8rem 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-sidebar .nav-link:hover {
-            background-color: var(--secondary-color);
-            transform: translateX(5px);
-        }
-        
-        .brand-link {
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .main-header {
-            border-bottom: 1px solid #dee2e6;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-        }
-        
-        .content-wrapper {
-            background-color: #f4f6f9;
-            padding: 20px;
-        }
-        
-        .main-footer {
-            border-top: 1px solid #dee2e6;
-            padding: 1rem;
-            font-size: 0.9rem;
-            color: #6c757d;
-        }
-
-        .nav-item .nav-link i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-
-        .brand-link img {
-            max-height: 40px;
-        }
-
-        @media (max-width: 768px) {
-            .main-sidebar {
-                width: 100%;
-                max-width: var(--sidebar-width);
-            }
-        }
-    </style>
 </head>
 <body class="hold-transition sidebar-mini">
     <div class="wrapper">
@@ -96,16 +25,16 @@
                     </a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="~/Home/Index" class="nav-link">
+                    <a href="~/Dashboard/Index" class="nav-link">
                         <i class="fas fa-home"></i> Dashboard
                     </a>
                 </li>
             </ul>
-            <!-- Right navbar links -->
-            <ul class="navbar-nav ml-auto">
+            <ul class="navbar-nav ml-auto">                
                 <li class="nav-item">
-                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                        <i class="fas fa-expand-arrows-alt"></i>
+                    <a class="nav-link" href="~/Account/Logout" title="Sair do Sistema">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="d-none d-sm-inline-block ml-1">Sair</span>
                     </a>
                 </li>
             </ul>
@@ -113,14 +42,13 @@
 
         <!-- Sidebar -->
         <aside class="main-sidebar">
-            <!-- Brand Logo -->
-            <a href="~/Home/Index" class="brand-link text-center">
+            <a href="~/Dashboard/Index" class="brand-link text-center">
                 <img src="~/dist/img/AdminLTELogo.png" alt="SGC Logo" class="brand-image elevation-3">
                 <span class="brand-text font-weight-light">SGC</span>
             </a>
 
             <div class="sidebar">
-                <nav class="mt-4">
+                <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
                         <li class="nav-item">
                             <a href="~/Fabricantes/Index" class="nav-link">
@@ -141,6 +69,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="~/Clientes/Index" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i>
+                                <p>Clientes</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="~/Vendas/Index" class="nav-link">
                                 <i class="nav-icon fas fa-shopping-cart"></i>
                                 <p>Vendas</p>
@@ -153,17 +87,13 @@
 
         <!-- Content -->
         <div class="content-wrapper">
-            <div class="container-fluid">
-                @RenderBody()
-            </div>
+            @RenderBody()
         </div>
 
         <!-- Footer -->
-        <footer class="main-footer text-center">
-            <div class="container">
-                <strong>&copy; @DateTime.Now.Year SGC.</strong>
-                <span class="ml-2">Todos os direitos reservados.</span>
-            </div>
+        <footer class="main-footer">
+            <strong>&copy; @DateTime.Now.Year SGC.</strong>
+            <span class="ml-1">Todos os direitos reservados.</span>
         </footer>
     </div>
 

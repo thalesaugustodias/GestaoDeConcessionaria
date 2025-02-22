@@ -1,0 +1,71 @@
+﻿@model GestaoDeConcessionaria.Web.Models.LoginViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SGC - Login</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css" />
+    <link rel="stylesheet" href="~/plugins/toastr/toastr.min.css" />
+    <link rel="stylesheet" href="~/css/login.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <img src="~/dist/img/AdminLTELogo.png" alt="SGC Logo">
+            <h1>SGC</h1>
+            <p>Sistema de Gestão de Concessionárias</p>
+        </div>
+
+        <form asp-action="Login" asp-controller="Account" method="post">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <i class="fas fa-user"></i>
+                    </span>
+                </div>
+                <input asp-for="NomeUsuario" class="form-control" placeholder="Nome de usuário" autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                </div>
+                <input asp-for="Senha" class="form-control" placeholder="Senha" type="password">
+            </div>
+
+            <button type="submit" class="btn btn-login btn-primary">
+                Entrar no Sistema <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </form>
+    </div>
+
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <script src="~/plugins/toastr/toastr.min.js"></script>
+    <script>
+        $(function () {
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "3000"
+            };
+
+        @if (ViewData.ModelState.ErrorCount > 0)
+        {
+            <text>
+                    toastr.error('Falha na autenticação. Verifique suas credenciais.', 'Erro');
+            </text>
+        }
+        });
+    </script>
+</body>
+</html>

@@ -18,7 +18,7 @@ namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
         {
             options.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "SGC - Sistema Gerenciador de Veículos",
+                Title = "SGC - Sistema De Gestão de Concessionária de Veículos",
                 Description = "Desafio Técnico",
                 Contact = new OpenApiContact
                 {

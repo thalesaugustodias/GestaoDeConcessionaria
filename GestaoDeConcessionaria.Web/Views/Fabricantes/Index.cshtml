@@ -1,0 +1,41 @@
+﻿@model IEnumerable<GestaoDeConcessionaria.Web.Models.FabricanteViewModel>
+
+@{
+    ViewData["Title"] = "Fabricantes";
+}
+
+<h2>Fabricantes</h2>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Cadastrar Novo Fabricante</a>
+</p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>País de Origem</th>
+            <th>Ano de Fundação</th>
+            <th>Website</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Nome</td>
+                <td>@item.PaisOrigem</td>
+                <td>@item.AnoFundacao</td>
+                <td>@item.Website</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detalhes</a>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Excluir</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
