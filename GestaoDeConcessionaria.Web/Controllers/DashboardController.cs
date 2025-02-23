@@ -18,6 +18,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             }
         }
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var anoAtual = DateTime.Now.Year;

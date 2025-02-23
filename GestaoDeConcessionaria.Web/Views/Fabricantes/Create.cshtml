@@ -1,0 +1,142 @@
+﻿@model GestaoDeConcessionaria.Web.Models.FabricanteViewModel
+@{
+    ViewData["Title"] = "Cadastrar Fabricante";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>
+                    <i class="fas fa-industry mr-2"></i>
+                    Cadastrar Fabricante
+                </h1>
+            </div>
+            <div class="col-sm-6">
+                <a asp-action="Index" class="btn btn-secondary float-right">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header bg-primary">
+                <h3 class="card-title">
+                    <i class="fas fa-plus-circle mr-1"></i>
+                    Novo Fabricante
+                </h3>
+            </div>
+            <form asp-action="Create" method="post">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Nome">
+                                    <i class="fas fa-trademark mr-1"></i>
+                                    Nome do Fabricante
+                                </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-building"></i>
+                                        </span>
+                                    </div>
+                                    <input asp-for="Nome" class="form-control" placeholder="Digite o nome do fabricante" />
+                                </div>
+                                <span asp-validation-for="Nome" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="PaisOrigem">
+                                    <i class="fas fa-globe-americas mr-1"></i>
+                                    País de Origem
+                                </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-flag"></i>
+                                        </span>
+                                    </div>
+                                    <input asp-for="PaisOrigem" class="form-control" placeholder="Digite o país de origem" />
+                                </div>
+                                <span asp-validation-for="PaisOrigem" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="AnoFundacao">
+                                    <i class="fas fa-calendar-alt mr-1"></i>
+                                    Ano de Fundação
+                                </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-calendar"></i>
+                                        </span>
+                                    </div>
+                                    <input asp-for="AnoFundacao" class="form-control" type="number" placeholder="Digite o ano de fundação" />
+                                </div>
+                                <span asp-validation-for="AnoFundacao" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Website">
+                                    <i class="fas fa-globe mr-1"></i>
+                                    Website
+                                </label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-link"></i>
+                                        </span>
+                                    </div>
+                                    <input asp-for="Website" class="form-control" placeholder="https://www.exemplo.com" />
+                                </div>
+                                <span asp-validation-for="Website" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="float-right">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times mr-1"></i>
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save mr-1"></i>
+                            Salvar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            $("#AnoFundacao").on("input", function() {
+                var value = $(this).val();
+                if (value.length > 4) {
+                    $(this).val(value.slice(0, 4));
+                }
+            });
+            $("#Website").on("blur", function() {
+                var value = $(this).val();
+                if (value && !value.startsWith('http')) {
+                    $(this).val('https://' + value);
+                }
+            });
+        });
+    </script>
+}

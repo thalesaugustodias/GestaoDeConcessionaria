@@ -1,6 +1,10 @@
 ﻿using GestaoDeConcessionaria.Web.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace GestaoDeConcessionaria.Web.Controllers
 {
@@ -16,6 +20,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
@@ -23,7 +28,6 @@ namespace GestaoDeConcessionaria.Web.Controllers
 
             var loginData = new { model.NomeUsuario, model.Senha };
             var content = new StringContent(JsonConvert.SerializeObject(loginData), System.Text.Encoding.UTF8, "application/json");
-
             var response = await _httpClient.PostAsync("api/auth/login", content);
 
             if (response.IsSuccessStatusCode)
@@ -31,6 +35,20 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var resultJson = await response.Content.ReadAsStringAsync();
                 dynamic result = JsonConvert.DeserializeObject(resultJson);
                 string token = result.token;
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+                var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+                var nomeClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "nomeUsuario");
+                var claims = new List<Claim>
+                {
+                    new(ClaimTypes.Name, nomeClaim?.Value ?? model.NomeUsuario),
+                    new(ClaimTypes.Role, roleClaim?.Value ?? "")
+                };
+
+                var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var principal = new ClaimsPrincipal(identity);
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
                 HttpContext.Session.SetString("JWToken", token);
 
@@ -38,7 +56,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             }
             else
             {
-                ModelState.AddModelError(string.Empty, "Falha na autenticação. Verifique suas credenciais.");
+                ModelState.AddModelError("", "Credenciais inválidas.");
                 return View(model);
             }
         }

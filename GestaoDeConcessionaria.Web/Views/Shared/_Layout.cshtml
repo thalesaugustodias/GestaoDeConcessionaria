@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="~/dist/css/adminlte.min.css" />
     <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" href="~/plugins/toastr/toastr.min.css" />
+    <link rel="stylesheet" href="~/plugins/sweetalert2/sweetalert2.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
@@ -39,6 +40,9 @@
                 </li>
             </ul>
         </nav>
+        @{
+            var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+        }
 
         <!-- Sidebar -->
         <aside class="main-sidebar">
@@ -50,36 +54,54 @@
             <div class="sidebar">
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
-                        <li class="nav-item">
-                            <a href="~/Fabricantes/Index" class="nav-link">
-                                <i class="nav-icon fas fa-industry"></i>
-                                <p>Fabricantes</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="~/Veiculos/Index" class="nav-link">
-                                <i class="nav-icon fas fa-car"></i>
-                                <p>Veículos</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="~/Concessionarias/Index" class="nav-link">
-                                <i class="nav-icon fas fa-building"></i>
-                                <p>Concessionárias</p>
-                            </a>
-                        </li>
+                        @if (userRole == "Administrador")
+                        {
+                            <li class="nav-item">
+                                <a href="~/Fabricantes/Index" class="nav-link">
+                                    <i class="nav-icon fas fa-industry"></i>
+                                    <p>Fabricantes</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="~/Concessionarias/Index" class="nav-link">
+                                    <i class="nav-icon fas fa-building"></i>
+                                    <p>Concessionárias</p>
+                                </a>
+                            </li>
+                        }
+                        @if (userRole == "Gerente")
+                        {
+                            <li class="nav-item">
+                                <a href="~/Veiculos/Index" class="nav-link">
+                                    <i class="nav-icon fas fa-car"></i>
+                                    <p>Veículos</p>
+                                </a>
+                            </li>
+                        }
+                        @if (userRole == "Vendedor")
+                        {
+                            <li class="nav-item">
+                                <a href="~/Vendas/Index" class="nav-link">
+                                    <i class="nav-icon fas fa-shopping-cart"></i>
+                                    <p>Vendas</p>
+                                </a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a href="~/Clientes/Index" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>Clientes</p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="~/Vendas/Index" class="nav-link">
-                                <i class="nav-icon fas fa-shopping-cart"></i>
-                                <p>Vendas</p>
-                            </a>
-                        </li>
+                        @if (userRole == "Gerente")
+                        {
+                            <li class="nav-item">
+                                <a href="~/Dashboard/Index" class="nav-link">
+                                    <i class="nav-icon fas fa-chart-line"></i>
+                                    <p>Relatórios</p>
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </nav>
             </div>
@@ -99,10 +121,12 @@
 
     <!-- Scripts -->
     <script src="~/plugins/jquery/jquery.min.js"></script>
+    <script src="~/plugins/inputmask/jquery.inputmask.min.js"></script>
     <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/dist/js/adminlte.min.js"></script>
     <script src="~/plugins/chart.js/Chart.min.js"></script>
     <script src="~/plugins/toastr/toastr.min.js"></script>
+    <script src="~/plugins/sweetalert2/sweetalert2.all.min.js"></script>
     <script src="~/js/site.js"></script>
     @RenderSection("Scripts", required: false)
 </body>

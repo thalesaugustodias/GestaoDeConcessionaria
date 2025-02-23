@@ -1,0 +1,129 @@
+﻿@model GestaoDeConcessionaria.Web.Models.ClienteViewModel
+@{
+    ViewData["Title"] = "Detalhes do Cliente";
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>
+                    <i class="fas fa-user mr-2"></i>
+                    Detalhes do Cliente
+                </h1>
+            </div>
+            <div class="col-sm-6">
+                <div class="float-right">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left mr-1"></i>
+                        Voltar
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                        <i class="fas fa-edit mr-1"></i>
+                        Editar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-info">
+                        <h3 class="card-title">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Informações do Cliente
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-box bg-light">
+                                    <span class="info-box-icon">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Nome Completo</span>
+                                        <span class="info-box-number">@Model.Nome</span>
+                                    </div>
+                                </div>
+
+                                <div class="info-box bg-light">
+                                    <span class="info-box-icon">
+                                        <i class="fas fa-id-card"></i>
+                                    </span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">CPF</span>
+                                        <span class="info-box-number cpf-format">@Model.CPF</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="info-box bg-light">
+                                    <span class="info-box-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Telefone</span>
+                                        <span class="info-box-number telefone-format">@Model.Telefone</span>
+                                        <span class="info-box-text">
+                                            <a href="tel:@Model.Telefone" class="text-muted">
+                                                <i class="fas fa-phone-alt mr-1"></i>
+                                                Ligar agora
+                                            </a>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="info-box bg-light">
+                                    <span class="info-box-icon">
+                                        <i class="fas fa-hashtag"></i>
+                                    </span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">ID do Cliente</span>
+                                        <span class="info-box-number">@Model.Id</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="callout callout-info">
+                                    <h5>
+                                        <i class="fas fa-info-circle"></i>
+                                        Histórico do Cliente
+                                    </h5>
+                                    <p>
+                                        Cliente cadastrado no sistema. Para mais informações sobre compras e interações,
+                                        consulte o histórico de vendas.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+
+            var cpf = $('.cpf-format').text().trim();
+            var cpfFormatado = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+            $('.cpf-format').text(cpfFormatado);
+
+            var telefone = $('.telefone-format').text().trim();
+            var telefoneFormatado = telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+            $('.telefone-format').text(telefoneFormatado);
+        });
+    </script>
+}

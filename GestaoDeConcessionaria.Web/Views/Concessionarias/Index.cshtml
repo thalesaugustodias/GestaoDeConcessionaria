@@ -1,13 +1,16 @@
-﻿@model IEnumerable<GestaoDeConcessionaria.Web.Models.FabricanteViewModel>
+﻿@model IEnumerable<GestaoDeConcessionaria.Web.Models.ConcessionariaViewModel>
 @{
-    ViewData["Title"] = "Fabricantes";
+    ViewData["Title"] = "Concessionárias";
 }
 
 <section class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1><i class="fas fa-industry mr-2"></i>Fabricantes</h1>
+                <h1>
+                    <i class="fas fa-building mr-2"></i>
+                    Concessionárias
+                </h1>
             </div>
             <div class="col-sm-6">
                 <a asp-action="Create" class="btn btn-primary float-right">
@@ -23,10 +26,10 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Lista de Fabricantes Cadastrados</h3>
+                <h3 class="card-title">Concessionárias Cadastradas</h3>
                 <div class="card-tools">
                     <div class="input-group input-group-sm" style="width: 250px;">
-                        <input type="text" id="searchInput" class="form-control" placeholder="Pesquisar fabricante...">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Pesquisar concessionária...">
                         <div class="input-group-append">
                             <button type="button" class="btn btn-default">
                                 <i class="fas fa-search"></i>
@@ -41,9 +44,9 @@
                         <tr>
                             <th class="text-center" style="width: 80px">ID</th>
                             <th>Nome</th>
-                            <th>País de Origem</th>
-                            <th class="text-center">Ano de Fundação</th>
-                            <th>Website</th>
+                            <th>Localização</th>
+                            <th class="text-center">Capacidade</th>
+                            <th class="text-center">Contato</th>
                             <th class="text-center" style="width: 200px">Ações</th>
                         </tr>
                     </thead>
@@ -56,24 +59,41 @@
                                     <strong>@item.Nome</strong>
                                 </td>
                                 <td>
-                                    <i class="fas fa-globe-americas mr-1"></i>
-                                    @item.PaisOrigem
+                                    <div>
+                                        <i class="fas fa-map-marker-alt mr-1"></i>
+                                        @item.Cidade - @item.Estado
+                                    </div>
+                                    <small class="text-muted cep-format">
+                                        <i class="fas fa-map-pin mr-1"></i>
+                                        @item.CEP
+                                    </small>
                                 </td>
                                 <td class="text-center">
-                                    <span class="badge badge-info">@item.AnoFundacao</span>
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-warehouse mr-1"></i>
+                                        @item.CapacidadeMaximaVeiculos veículos
+                                    </span>
                                 </td>
-                                <td>
-                                    <a href="@item.Website" target="_blank" class="text-primary">
-                                        <i class="fas fa-external-link-alt mr-1"></i>
-                                        @item.Website
-                                    </a>
+                                <td class="text-center">
+                                    <div class="telefone-format">
+                                        <i class="fas fa-phone mr-1"></i>
+                                        @item.Telefone
+                                    </div>
+                                    <small>
+                                        <a href="mailto:@item.Email" class="text-muted">
+                                            <i class="fas fa-envelope mr-1"></i>
+                                            @item.Email
+                                        </a>
+                                    </small>
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm" title="Detalhes">
+                                        <a asp-action="Details" asp-route-id="@item.Id"
+                                           class="btn btn-info btn-sm" title="Detalhes">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm" title="Editar">
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                           class="btn btn-warning btn-sm" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <a href="javascript:void(0);" onclick="confirmarExclusao(@item.Id, '@item.Nome')"
@@ -109,20 +129,33 @@
                     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                 });
             });
+
+            $('.cep-format').each(function () {
+                var cep = $(this).text().trim();
+                var cepFormatado = cep.replace(/(\d{5})(\d{3})/, "$1-$2");
+                $(this).html('<i class="fas fa-map-pin mr-1"></i>' + cepFormatado);
+            });
+
+            $('.telefone-format').each(function () {
+                var telefone = $(this).text().trim();
+                var telefoneFormatado = telefone.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
+                $(this).html('<i class="fas fa-phone mr-1"></i>' + telefoneFormatado);
+            });
+
             $('[title]').tooltip();
         });
 
         function confirmarExclusao(id, nome) {
             Swal.fire({
                 title: 'Confirmar Exclusão',
-                html: `Você está prestes a excluir o fabricante <strong>${nome}</strong>.<br>Esta ação não poderá ser desfeita.`,
+                html: `Você está prestes a excluir a concessionária<br><strong>${nome}</strong>.<br><br>Esta ação não poderá ser desfeita.`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Sim, excluir!',
                 cancelButtonText: 'Cancelar',
-                footer: '<small>Todos os registros relacionados também serão excluídos</small>'
+                footer: '<small>Todos os veículos e registros relacionados serão removidos do sistema</small>'
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
@@ -133,25 +166,32 @@
                             Swal.showLoading()
                         }
                     });
-
-                    $.post(`/Fabricantes/Delete/${id}`)
-                        .done(function () {
-                            Swal.fire({
-                                title: 'Excluído!',
-                                text: 'O fabricante foi excluído com sucesso.',
-                                icon: 'success',
-                                timer: 2000,
-                                showConfirmButton: false
-                            }).then(() => {
-                                window.location.reload();
-                            });
+                    $.post(`/Concessionarias/Delete/${id}`)
+                        .done(function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Excluída!',
+                                    text: 'A concessionária foi excluída com sucesso.',
+                                    icon: 'success',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Erro!',
+                                    response.message || 'Não foi possível excluir a concessionária.',
+                                    'error'
+                                );
+                            }
                         })
                         .fail(function () {
-                            Swal.fire(
-                                'Erro!',
-                                'Ocorreu um erro ao excluir o fabricante.',
-                                'error'
-                            );
+                            Swal.fire({
+                                title: 'Erro!',
+                                text: 'Ocorreu um erro ao excluir a concessionária. Verifique se não existem vendas ou veículos vinculados.',
+                                icon: 'error'
+                            });
                         });
                 }
             });

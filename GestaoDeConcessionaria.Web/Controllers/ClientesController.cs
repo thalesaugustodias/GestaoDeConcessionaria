@@ -1,13 +1,16 @@
 ﻿using GestaoDeConcessionaria.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace GestaoDeConcessionaria.Web.Controllers
 {
+    [Authorize(Roles = "Administrador,Vendedor,Gerente")]
     public class ClientesController(IHttpClientFactory httpClientFactory) : Controller
     {
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
 
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var response = await _httpClient.GetAsync("api/clientes");
@@ -20,6 +23,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             return View(new List<ClienteViewModel>());
         }
 
+        [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
             var response = await _httpClient.GetAsync($"api/clientes/{id}");
@@ -32,12 +36,14 @@ namespace GestaoDeConcessionaria.Web.Controllers
             return NotFound();
         }
 
+        [HttpGet]
         public IActionResult Create()
         {
             return View(new ClienteViewModel());
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ClienteViewModel model)
         {
             if (ModelState.IsValid)
@@ -51,6 +57,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             return View(model);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var response = await _httpClient.GetAsync($"api/clientes/{id}");
@@ -64,6 +71,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, ClienteViewModel model)
         {
             if (ModelState.IsValid)
@@ -77,6 +85,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             return View(model);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
             var response = await _httpClient.GetAsync($"api/clientes/{id}");
@@ -90,6 +99,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var response = await _httpClient.DeleteAsync($"api/clientes/{id}");
