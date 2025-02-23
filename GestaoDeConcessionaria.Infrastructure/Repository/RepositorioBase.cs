@@ -17,7 +17,7 @@ namespace GestaoDeConcessionaria.Infrastructure.Repository
 
         public async Task<IEnumerable<T>> ObterTodosAsync()
         {
-            return await _dbSet.ToListAsync();
+            return await _dbSet.Where(e => EF.Property<bool>(e, "Ativo") == true).ToListAsync();
         }
 
         public async Task<T> ObterPorIdAsync(int id)

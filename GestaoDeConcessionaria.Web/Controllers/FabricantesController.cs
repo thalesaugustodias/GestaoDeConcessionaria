@@ -83,24 +83,11 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 ModelState.AddModelError("", "Erro ao atualizar fabricante.");
             }
             return View(model);
-        }
+        }     
 
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var response = await _httpClient.GetAsync($"api/fabricantes/{id}");
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonData = await response.Content.ReadAsStringAsync();
-                var fabricante = JsonConvert.DeserializeObject<FabricanteViewModel>(jsonData);
-                return View(fabricante);
-            }
-            return NotFound();
-        }
-
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var response = await _httpClient.DeleteAsync($"api/fabricantes/{id}");
             if (response.IsSuccessStatusCode)
