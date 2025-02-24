@@ -5,13 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using NToastNotify;
 
 namespace GestaoDeConcessionaria.Web.Controllers
 {
-    public class AccountController(IHttpClientFactory httpClientFactory, IConfiguration configuration) : Controller
+    public class AccountController(IHttpClientFactory httpClientFactory, IConfiguration configuration, IToastNotification toastNotification) : Controller
     {
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
         private readonly IConfiguration _configuration = configuration;
+        private readonly IToastNotification _toastNotification = toastNotification;
 
         [HttpGet]
         public IActionResult Login()
@@ -39,10 +41,11 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var jwtToken = handler.ReadJwtToken(token);
                 var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
                 var nomeClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "nomeUsuario");
+
                 var claims = new List<Claim>
                 {
-                    new(ClaimTypes.Name, nomeClaim?.Value ?? model.NomeUsuario),
-                    new(ClaimTypes.Role, roleClaim?.Value ?? "")
+                    new Claim(ClaimTypes.Name, nomeClaim?.Value ?? model.NomeUsuario),
+                    new Claim(ClaimTypes.Role, roleClaim?.Value ?? "")
                 };
 
                 var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -56,7 +59,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             }
             else
             {
-                ModelState.AddModelError("", "Credenciais inválidas.");
+                _toastNotification.AddErrorToastMessage("Credenciais inválidas.");
                 return View(model);
             }
         }

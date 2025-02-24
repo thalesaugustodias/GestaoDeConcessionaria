@@ -1,4 +1,5 @@
-﻿using GestaoDeConcessionaria.Web.Models;
+﻿using GestaoDeConcessionaria.Web.Extensions;
+using GestaoDeConcessionaria.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -22,7 +23,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var concessionarias = JsonConvert.DeserializeObject<IEnumerable<ConcessionariaViewModel>>(jsonData);
                 return View(concessionarias);
             }
-            _toastNotification.AddErrorToastMessage("Erro ao carregar concessionárias.");
+            _toastNotification.AddErrorToastMessageCustom("Erro ao carregar concessionárias.");
             return View(new List<ConcessionariaViewModel>());
         }
 
@@ -36,7 +37,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var concessionaria = JsonConvert.DeserializeObject<ConcessionariaViewModel>(jsonData);
                 return View(concessionaria);
             }
-            _toastNotification.AddErrorToastMessage("Concessionária não encontrada.");
+            _toastNotification.AddErrorToastMessageCustom("Concessionária não encontrada.");
             return RedirectToAction("Index");
         }
 
@@ -56,7 +57,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var response = await _httpClient.PostAsync("api/concessionarias", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    _toastNotification.AddSuccessToastMessage("Concessionária criada com sucesso!");
+                    _toastNotification.AddSuccessToastMessageCustom("Concessionária criada com sucesso!");
                     return RedirectToAction("Index");
                 }
                 else
@@ -69,7 +70,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                         errorMessage = errorObj?.Message ?? errorMessage;
                     }
                     catch { }
-                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    _toastNotification.AddErrorToastMessageCustom(errorMessage);
                     return RedirectToAction("Create");
                 }
             }
@@ -86,7 +87,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var concessionaria = JsonConvert.DeserializeObject<ConcessionariaViewModel>(jsonData);
                 return View(concessionaria);
             }
-            _toastNotification.AddErrorToastMessage("Concessionária não encontrada para edição.");
+            _toastNotification.AddErrorToastMessageCustom("Concessionária não encontrada para edição.");
             return RedirectToAction("Index");
         }
 
@@ -100,7 +101,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var response = await _httpClient.PutAsync($"api/concessionarias/{id}", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    _toastNotification.AddSuccessToastMessage("Concessionária atualizada com sucesso!");
+                    _toastNotification.AddSuccessToastMessageCustom("Concessionária atualizada com sucesso!");
                     return RedirectToAction("Index");
                 }
                 else
@@ -113,7 +114,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                         errorMessage = errorObj?.Message ?? errorMessage;
                     }
                     catch { }
-                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    _toastNotification.AddErrorToastMessageCustom(errorMessage);
                     return RedirectToAction("Edit", new { id });
                 }
             }
@@ -130,7 +131,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var concessionaria = JsonConvert.DeserializeObject<ConcessionariaViewModel>(jsonData);
                 return View(concessionaria);
             }
-            _toastNotification.AddErrorToastMessage("Concessionária não encontrada para exclusão.");
+            _toastNotification.AddErrorToastMessageCustom("Concessionária não encontrada para exclusão.");
             return RedirectToAction("Index");
         }
 
@@ -141,7 +142,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             var response = await _httpClient.DeleteAsync($"api/concessionarias/{id}");
             if (response.IsSuccessStatusCode)
             {
-                _toastNotification.AddSuccessToastMessage("Concessionária removida com sucesso!");
+                _toastNotification.AddSuccessToastMessageCustom("Concessionária removida com sucesso!");
                 return RedirectToAction("Index");
             }
             else
@@ -154,7 +155,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                     errorMessage = errorObj?.Message ?? errorMessage;
                 }
                 catch { }
-                _toastNotification.AddErrorToastMessage(errorMessage);
+                _toastNotification.AddErrorToastMessageCustom(errorMessage);
                 return RedirectToAction("Index");
             }
         }

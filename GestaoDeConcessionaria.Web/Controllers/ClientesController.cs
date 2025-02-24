@@ -1,4 +1,5 @@
-﻿using GestaoDeConcessionaria.Web.Models;
+﻿using GestaoDeConcessionaria.Web.Extensions;
+using GestaoDeConcessionaria.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -22,7 +23,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var clientes = JsonConvert.DeserializeObject<IEnumerable<ClienteViewModel>>(jsonData);
                 return View(clientes);
             }
-            _toastNotification.AddErrorToastMessage("Erro ao carregar clientes.");
+            _toastNotification.AddErrorToastMessageCustom("Erro ao carregar clientes.");
             return View(new List<ClienteViewModel>());
         }
 
@@ -36,7 +37,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var cliente = JsonConvert.DeserializeObject<ClienteViewModel>(jsonData);
                 return View(cliente);
             }
-            _toastNotification.AddErrorToastMessage("Cliente não encontrado.");
+            _toastNotification.AddErrorToastMessageCustom("Cliente não encontrado.");
             return RedirectToAction("Index");
         }
 
@@ -57,7 +58,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var response = await _httpClient.PostAsync("api/clientes", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    _toastNotification.AddSuccessToastMessage("Cliente criado com sucesso!");
+                    _toastNotification.AddSuccessToastMessageCustom("Cliente criado com sucesso!");
                     return RedirectToAction("Index");
                 }
                 else
@@ -70,7 +71,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                         errorMessage = errorObj?.Message ?? errorMessage;
                     }
                     catch { }
-                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    _toastNotification.AddErrorToastMessageCustom(errorMessage);
                     return RedirectToAction("Create");
                 }
             }
@@ -87,7 +88,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var cliente = JsonConvert.DeserializeObject<ClienteViewModel>(jsonData);
                 return View(cliente);
             }
-            _toastNotification.AddErrorToastMessage("Cliente não encontrado para edição.");
+            _toastNotification.AddErrorToastMessageCustom("Cliente não encontrado para edição.");
             return RedirectToAction("Index");
         }
 
@@ -102,7 +103,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var response = await _httpClient.PutAsync($"api/clientes/{id}", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    _toastNotification.AddSuccessToastMessage("Cliente atualizado com sucesso!");
+                    _toastNotification.AddSuccessToastMessageCustom("Cliente atualizado com sucesso!");
                     return RedirectToAction("Index");
                 }
                 else
@@ -115,7 +116,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                         errorMessage = errorObj?.Message ?? errorMessage;
                     }
                     catch { }
-                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    _toastNotification.AddErrorToastMessageCustom(errorMessage);
                     return RedirectToAction("Edit", new { id });
                 }
             }
@@ -132,7 +133,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var cliente = JsonConvert.DeserializeObject<ClienteViewModel>(jsonData);
                 return View(cliente);
             }
-            _toastNotification.AddErrorToastMessage("Cliente não encontrado para exclusão.");
+            _toastNotification.AddErrorToastMessageCustom("Cliente não encontrado para exclusão.");
             return RedirectToAction("Index");
         }
 
@@ -143,7 +144,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             var response = await _httpClient.DeleteAsync($"api/clientes/{id}");
             if (response.IsSuccessStatusCode)
             {
-                _toastNotification.AddSuccessToastMessage("Cliente removido com sucesso!");
+                _toastNotification.AddSuccessToastMessageCustom("Cliente removido com sucesso!");
                 return RedirectToAction("Index");
             }
             else
@@ -156,7 +157,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                     errorMessage = errorObj?.Message ?? errorMessage;
                 }
                 catch { }
-                _toastNotification.AddErrorToastMessage(errorMessage);
+                _toastNotification.AddErrorToastMessageCustom(errorMessage);
                 return RedirectToAction("Index");
             }
         }

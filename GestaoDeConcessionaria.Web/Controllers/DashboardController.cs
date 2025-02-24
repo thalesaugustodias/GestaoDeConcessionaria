@@ -1,4 +1,5 @@
-﻿using GestaoDeConcessionaria.Web.Models;
+﻿using GestaoDeConcessionaria.Web.Extensions;
+using GestaoDeConcessionaria.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using NToastNotify;
@@ -23,7 +24,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             }
             else
             {
-                _toastNotification.AddErrorToastMessage("Erro ao carregar os dados do relatório.");
+                _toastNotification.AddErrorToastMessageCustom("Erro ao carregar os dados do relatório.");
                 model = new DashboardViewModel
                 {
                     TotalVendas = 0,

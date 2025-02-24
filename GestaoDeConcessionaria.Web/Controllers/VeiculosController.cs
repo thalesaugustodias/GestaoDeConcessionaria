@@ -1,4 +1,5 @@
-﻿using GestaoDeConcessionaria.Web.Models;
+﻿using GestaoDeConcessionaria.Web.Extensions;
+using GestaoDeConcessionaria.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -22,7 +23,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var veiculos = JsonConvert.DeserializeObject<IEnumerable<VeiculoViewModel>>(jsonData);
                 return View(veiculos);
             }
-            _toastNotification.AddErrorToastMessage("Erro ao carregar veículos.");
+            _toastNotification.AddErrorToastMessageCustom("Erro ao carregar veículos.");
             return View(new List<VeiculoViewModel>());
         }
 
@@ -36,7 +37,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var veiculo = JsonConvert.DeserializeObject<VeiculoViewModel>(jsonData);
                 return View(veiculo);
             }
-            _toastNotification.AddErrorToastMessage("Veículo não encontrado.");
+            _toastNotification.AddErrorToastMessageCustom("Veículo não encontrado.");
             return RedirectToAction("Index");
         }
 
@@ -57,7 +58,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var response = await _httpClient.PostAsync("api/veiculos", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    _toastNotification.AddSuccessToastMessage("Veículo criado com sucesso!");
+                    _toastNotification.AddSuccessToastMessageCustom("Veículo criado com sucesso!");
                     return RedirectToAction("Index");
                 }
                 else
@@ -70,7 +71,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                         errorMessage = errorObj?.Message ?? errorMessage;
                     }
                     catch { }
-                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    _toastNotification.AddErrorToastMessageCustom(errorMessage);
                     return RedirectToAction("Create");
                 }
             }
@@ -87,7 +88,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var veiculo = JsonConvert.DeserializeObject<VeiculoViewModel>(jsonData);
                 return View(veiculo);
             }
-            _toastNotification.AddErrorToastMessage("Veículo não encontrado para edição.");
+            _toastNotification.AddErrorToastMessageCustom("Veículo não encontrado para edição.");
             return RedirectToAction("Index");
         }
 
@@ -102,7 +103,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var response = await _httpClient.PutAsync($"api/veiculos/{id}", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    _toastNotification.AddSuccessToastMessage("Veículo atualizado com sucesso!");
+                    _toastNotification.AddSuccessToastMessageCustom("Veículo atualizado com sucesso!");
                     return RedirectToAction("Index");
                 }
                 else
@@ -115,7 +116,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                         errorMessage = errorObj?.Message ?? errorMessage;
                     }
                     catch { }
-                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    _toastNotification.AddErrorToastMessageCustom(errorMessage);
                     return RedirectToAction("Edit", new { id });
                 }
             }
@@ -132,7 +133,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var veiculo = JsonConvert.DeserializeObject<VeiculoViewModel>(jsonData);
                 return View(veiculo);
             }
-            _toastNotification.AddErrorToastMessage("Veículo não encontrado para exclusão.");
+            _toastNotification.AddErrorToastMessageCustom("Veículo não encontrado para exclusão.");
             return RedirectToAction("Index");
         }
 
@@ -143,7 +144,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             var response = await _httpClient.DeleteAsync($"api/veiculos/{id}");
             if (response.IsSuccessStatusCode)
             {
-                _toastNotification.AddSuccessToastMessage("Veículo removido com sucesso!");
+                _toastNotification.AddSuccessToastMessageCustom("Veículo removido com sucesso!");
                 return RedirectToAction("Index");
             }
             else
@@ -156,7 +157,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                     errorMessage = errorObj?.Message ?? errorMessage;
                 }
                 catch { }
-                _toastNotification.AddErrorToastMessage(errorMessage);
+                _toastNotification.AddErrorToastMessageCustom(errorMessage);
                 return RedirectToAction("Index");
             }
         }

@@ -1,4 +1,5 @@
-﻿using GestaoDeConcessionaria.Web.Models;
+﻿using GestaoDeConcessionaria.Web.Extensions;
+using GestaoDeConcessionaria.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -22,7 +23,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var fabricantes = JsonConvert.DeserializeObject<IEnumerable<FabricanteViewModel>>(jsonData);
                 return View(fabricantes);
             }
-            _toastNotification.AddErrorToastMessage("Erro ao carregar fabricantes.");
+            _toastNotification.AddErrorToastMessageCustom("Erro ao carregar fabricantes.");
             return View(new List<FabricanteViewModel>());
         }
 
@@ -36,7 +37,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var fabricante = JsonConvert.DeserializeObject<FabricanteViewModel>(jsonData);
                 return View(fabricante);
             }
-            _toastNotification.AddErrorToastMessage("Fabricante não encontrado.");
+            _toastNotification.AddErrorToastMessageCustom("Fabricante não encontrado.");
             return RedirectToAction("Index");
         }
 
@@ -60,7 +61,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var response = await _httpClient.PostAsync("api/fabricantes", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    _toastNotification.AddSuccessToastMessage("Fabricante criado com sucesso!");
+                    _toastNotification.AddSuccessToastMessageCustom("Fabricante criado com sucesso!");
                     return RedirectToAction("Index");
                 }
                 else
@@ -73,7 +74,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                         errorMessage = errorObj?.Message ?? errorMessage;
                     }
                     catch { }
-                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    _toastNotification.AddErrorToastMessageCustom(errorMessage);
                     return RedirectToAction("Create");
                 }
             }
@@ -90,7 +91,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var fabricante = JsonConvert.DeserializeObject<FabricanteViewModel>(jsonData);
                 return View(fabricante);
             }
-            _toastNotification.AddErrorToastMessage("Fabricante não encontrado para edição.");
+            _toastNotification.AddErrorToastMessageCustom("Fabricante não encontrado para edição.");
             return RedirectToAction("Index");
         }
 
@@ -108,7 +109,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var response = await _httpClient.PutAsync($"api/fabricantes/{id}", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    _toastNotification.AddSuccessToastMessage("Fabricante atualizado com sucesso!");
+                    _toastNotification.AddSuccessToastMessageCustom("Fabricante atualizado com sucesso!");
                     return RedirectToAction("Index");
                 }
                 else
@@ -121,7 +122,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                         errorMessage = errorObj?.Message ?? errorMessage;
                     }
                     catch { }
-                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    _toastNotification.AddErrorToastMessageCustom(errorMessage);
                     return RedirectToAction("Edit", new { id });
                 }
             }
@@ -135,7 +136,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             var response = await _httpClient.DeleteAsync($"api/fabricantes/{id}");
             if (response.IsSuccessStatusCode)
             {
-                _toastNotification.AddSuccessToastMessage("Fabricante removido com sucesso!");
+                _toastNotification.AddSuccessToastMessageCustom("Fabricante removido com sucesso!");
                 return RedirectToAction("Index");
             }
             else
@@ -148,7 +149,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                     errorMessage = errorObj?.Message ?? errorMessage;
                 }
                 catch { }
-                _toastNotification.AddErrorToastMessage(errorMessage);
+                _toastNotification.AddErrorToastMessageCustom(errorMessage);
                 return RedirectToAction("Index");
             }
         }

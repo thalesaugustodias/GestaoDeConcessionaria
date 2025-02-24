@@ -1,4 +1,5 @@
-﻿using GestaoDeConcessionaria.Web.Models;
+﻿using GestaoDeConcessionaria.Web.Extensions;
+using GestaoDeConcessionaria.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -22,7 +23,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var vendas = JsonConvert.DeserializeObject<IEnumerable<VendaViewModel>>(jsonData);
                 return View(vendas);
             }
-            _toastNotification.AddErrorToastMessage("Erro ao carregar vendas.");
+            _toastNotification.AddErrorToastMessageCustom("Erro ao carregar vendas.");
             return View(new List<VendaViewModel>());
         }
 
@@ -36,7 +37,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var venda = JsonConvert.DeserializeObject<VendaViewModel>(jsonData);
                 return View(venda);
             }
-            _toastNotification.AddErrorToastMessage("Venda não encontrada.");
+            _toastNotification.AddErrorToastMessageCustom("Venda não encontrada.");
             return RedirectToAction("Index");
         }
 
@@ -56,7 +57,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var response = await _httpClient.PostAsync("api/vendas", content);
                 if (response.IsSuccessStatusCode)
                 {
-                    _toastNotification.AddSuccessToastMessage("Venda criada com sucesso!");
+                    _toastNotification.AddSuccessToastMessageCustom("Venda criada com sucesso!");
                     return RedirectToAction("Index");
                 }
                 else
@@ -69,7 +70,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                         errorMessage = errorObj?.Message ?? errorMessage;
                     }
                     catch { }
-                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    _toastNotification.AddErrorToastMessageCustom(errorMessage);
                     return RedirectToAction("Create");
                 }
             }
