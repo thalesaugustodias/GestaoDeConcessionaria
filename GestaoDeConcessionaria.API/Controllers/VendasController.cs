@@ -12,24 +12,15 @@ namespace GestaoDeConcessionaria.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Vendedor")]
-    public class VendasController : ControllerBase
+    public class VendasController(IVendaService servicoVenda, IVeiculoService servicoVeiculo,
+                            IConcessionariaService servicoConcessionaria, IClienteService servicoCliente,
+                            IDistributedCache cache) : ControllerBase
     {
-        private readonly IVendaService _servicoVenda;
-        private readonly IVeiculoService _servicoVeiculo;
-        private readonly IConcessionariaService _servicoConcessionaria;
-        private readonly IClienteService _servicoCliente;
-        private readonly IDistributedCache _cache;
-
-        public VendasController(IVendaService servicoVenda, IVeiculoService servicoVeiculo,
-                                IConcessionariaService servicoConcessionaria, IClienteService servicoCliente,
-                                IDistributedCache cache)
-        {
-            _servicoVenda = servicoVenda;
-            _servicoVeiculo = servicoVeiculo;
-            _servicoConcessionaria = servicoConcessionaria;
-            _servicoCliente = servicoCliente;
-            _cache = cache;
-        }
+        private readonly IVendaService _servicoVenda = servicoVenda;
+        private readonly IVeiculoService _servicoVeiculo = servicoVeiculo;
+        private readonly IConcessionariaService _servicoConcessionaria = servicoConcessionaria;
+        private readonly IClienteService _servicoCliente = servicoCliente;
+        private readonly IDistributedCache _cache = cache;
 
         [HttpGet]
         [AllowAnonymous]
@@ -68,20 +59,27 @@ namespace GestaoDeConcessionaria.API.Controllers
 
             var veiculo = await _servicoVeiculo.ObterPorIdAsync(dto.VeiculoId);
             if (veiculo == null)
-                return BadRequest("Veículo não encontrado.");
+                return BadRequest(new { Message = "Veículo não encontrado." });
 
             var concessionaria = await _servicoConcessionaria.ObterPorIdAsync(dto.ConcessionariaId);
             if (concessionaria == null)
-                return BadRequest("Concessionária não encontrada.");
+                return BadRequest(new { Message = "Concessionária não encontrada." });
 
             var cliente = await _servicoCliente.ObterPorIdAsync(dto.ClienteId);
             if (cliente == null)
-                return BadRequest("Cliente não encontrado.");
+                return BadRequest(new { Message = "Cliente não encontrado." });
 
-            var venda = VendaFactory.Criar(dto, veiculo, concessionaria, cliente);
-            await _servicoVenda.AdicionarAsync(venda);
-            await _cache.RemoveAsync("lista_vendas");
-            return CreatedAtAction(nameof(ObterPorId), new { id = venda.Id }, venda);
+            try
+            {
+                var venda = VendaFactory.Criar(dto, veiculo, concessionaria, cliente);
+                await _servicoVenda.AdicionarAsync(venda);
+                await _cache.RemoveAsync("lista_vendas");
+                return CreatedAtAction(nameof(ObterPorId), new { id = venda.Id }, venda);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Erro ao adicionar venda: " + ex.Message });
+            }
         }
     }
 }

@@ -48,8 +48,8 @@ namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
                     context.Response.ContentType = "application/json";
                     var errorResponse = new
                     {
-                        Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde.",
-                        ExceptionMessage = env.IsDevelopment() ? exception?.Message : null,
+                        Message = env.IsDevelopment() ? exception?.Message : null,
+                        ExceptionMessage = "Ocorreu um erro interno. Por favor, tente novamente mais tarde.",
                         StackTrace = env.IsDevelopment() ? exception?.StackTrace : null
                     };
 

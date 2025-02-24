@@ -12,18 +12,11 @@ namespace GestaoDeConcessionaria.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Gerente")]
-    public class VeiculosController : ControllerBase
+    public class VeiculosController(IVeiculoService servicoVeiculo, IFabricanteService servicoFabricante, IDistributedCache cache) : ControllerBase
     {
-        private readonly IVeiculoService _servicoVeiculo;
-        private readonly IFabricanteService _servicoFabricante;
-        private readonly IDistributedCache _cache;
-
-        public VeiculosController(IVeiculoService servicoVeiculo, IFabricanteService servicoFabricante, IDistributedCache cache)
-        {
-            _servicoVeiculo = servicoVeiculo;
-            _servicoFabricante = servicoFabricante;
-            _cache = cache;
-        }
+        private readonly IVeiculoService _servicoVeiculo = servicoVeiculo;
+        private readonly IFabricanteService _servicoFabricante = servicoFabricante;
+        private readonly IDistributedCache _cache = cache;
 
         [HttpGet]
         [AllowAnonymous]
@@ -59,39 +52,61 @@ namespace GestaoDeConcessionaria.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
             var fabricante = await _servicoFabricante.ObterPorIdAsync(dto.FabricanteId);
             if (fabricante == null)
-                return BadRequest("Fabricante não encontrado.");
+                return BadRequest(new { Message = "Fabricante não encontrado." });
 
-            var veiculo = VeiculoFactory.Criar(dto, fabricante);
-            await _servicoVeiculo.AdicionarAsync(veiculo);
-            await _cache.RemoveAsync("lista_veiculos");
-            return CreatedAtAction(nameof(ObterPorId), new { id = veiculo.Id }, veiculo);
+            try
+            {
+                var veiculo = VeiculoFactory.Criar(dto, fabricante);
+                await _servicoVeiculo.AdicionarAsync(veiculo);
+                await _cache.RemoveAsync("lista_veiculos");
+                return CreatedAtAction(nameof(ObterPorId), new { id = veiculo.Id }, veiculo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Erro ao adicionar veículo: " + ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Atualizar(int id, [FromBody] VeiculoDTO dto)
         {
-            var veiculoExistente = await _servicoVeiculo.ObterPorIdAsync(id);
-            if (veiculoExistente == null)
-                return NotFound();
+            try
+            {
+                var veiculoExistente = await _servicoVeiculo.ObterPorIdAsync(id);
+                if (veiculoExistente == null)
+                    return NotFound();
 
-            var fabricante = await _servicoFabricante.ObterPorIdAsync(dto.FabricanteId);
-            if (fabricante == null)
-                return BadRequest("Fabricante não encontrado.");
+                var fabricante = await _servicoFabricante.ObterPorIdAsync(dto.FabricanteId);
+                if (fabricante == null)
+                    return BadRequest(new { Message = "Fabricante não encontrado." });
 
-            VeiculoFactory.Atualizar(veiculoExistente, dto, fabricante);
-            await _servicoVeiculo.AtualizarAsync(veiculoExistente);
-            await _cache.RemoveAsync("lista_veiculos");
-            return NoContent();
+                VeiculoFactory.Atualizar(veiculoExistente, dto, fabricante);
+                await _servicoVeiculo.AtualizarAsync(veiculoExistente);
+                await _cache.RemoveAsync("lista_veiculos");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Erro ao atualizar veículo: " + ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Remover(int id)
         {
-            await _servicoVeiculo.DeletarAsync(id);
-            await _cache.RemoveAsync("lista_veiculos");
-            return NoContent();
+            try
+            {
+                await _servicoVeiculo.DeletarAsync(id);
+                await _cache.RemoveAsync("lista_veiculos");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Erro ao remover veículo: " + ex.Message });
+            }
         }
     }
 }

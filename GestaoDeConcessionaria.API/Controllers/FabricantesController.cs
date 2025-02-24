@@ -52,31 +52,60 @@ namespace GestaoDeConcessionaria.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var fabricante = FabricanteFactory.Criar(dto);
-            await _servicoFabricante.AdicionarAsync(fabricante);
-            await _cache.RemoveAsync("lista_fabricantes");
-            return CreatedAtAction(nameof(ObterPorId), new { id = fabricante.Id }, fabricante);
+            try
+            {
+                var fabricante = FabricanteFactory.Criar(dto);
+                await _servicoFabricante.AdicionarAsync(fabricante);
+                await _cache.RemoveAsync("lista_fabricantes");
+                return CreatedAtAction(nameof(ObterPorId), new { id = fabricante.Id }, fabricante);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Atualizar(int id, [FromBody] FabricanteDTO dto)
         {
-            var fabricanteExistente = await _servicoFabricante.ObterPorIdAsync(id);
-            if (fabricanteExistente == null)
-                return NotFound();
+            try
+            {
+                var fabricanteExistente = await _servicoFabricante.ObterPorIdAsync(id);
+                if (fabricanteExistente == null)
+                    return NotFound();
 
-            FabricanteFactory.Atualizar(fabricanteExistente, dto);
-            await _servicoFabricante.AtualizarAsync(fabricanteExistente);
-            await _cache.RemoveAsync("lista_fabricantes");
-            return NoContent();
+                FabricanteFactory.Atualizar(fabricanteExistente, dto);
+                await _servicoFabricante.AtualizarAsync(fabricanteExistente);
+                await _cache.RemoveAsync("lista_fabricantes");
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Remover(int id)
         {
-            await _servicoFabricante.DeletarAsync(id);
-            await _cache.RemoveAsync("lista_fabricantes");
-            return NoContent();
+            try
+            {
+                await _servicoFabricante.DeletarAsync(id);
+                await _cache.RemoveAsync("lista_fabricantes");
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
+            }
         }
     }
 }

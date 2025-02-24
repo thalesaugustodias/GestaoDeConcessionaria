@@ -47,36 +47,65 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Adicionar([FromBody] ClienteDTO dto)
+        public async Task<IActionResult> Criar([FromBody] ClienteDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var cliente = ClienteFactory.Criar(dto);
-            await _servicoCliente.AdicionarAsync(cliente);
-            await _cache.RemoveAsync("lista_clientes");
-            return CreatedAtAction(nameof(ObterPorId), new { id = cliente.Id }, cliente);
+            try
+            {
+                var cliente = ClienteFactory.Criar(dto);
+                await _servicoCliente.AdicionarAsync(cliente);
+                await _cache.RemoveAsync("lista_clientes");
+                return CreatedAtAction(nameof(ObterPorId), new { id = cliente.Id }, cliente);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Atualizar(int id, [FromBody] ClienteDTO dto)
         {
-            var clienteExistente = await _servicoCliente.ObterPorIdAsync(id);
-            if (clienteExistente == null)
-                return NotFound();
+            try
+            {
+                var clienteExistente = await _servicoCliente.ObterPorIdAsync(id);
+                if (clienteExistente == null)
+                    return NotFound();
 
-            ClienteFactory.Atualizar(clienteExistente, dto);
-            await _servicoCliente.AtualizarAsync(clienteExistente);
-            await _cache.RemoveAsync("lista_clientes");
-            return NoContent();
+                ClienteFactory.Atualizar(clienteExistente, dto);
+                await _servicoCliente.AtualizarAsync(clienteExistente);
+                await _cache.RemoveAsync("lista_clientes");
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Remover(int id)
         {
-            await _servicoCliente.DeletarAsync(id);
-            await _cache.RemoveAsync("lista_clientes");
-            return NoContent();
+            try
+            {
+                await _servicoCliente.DeletarAsync(id);
+                await _cache.RemoveAsync("lista_clientes");
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
+            }
         }
     }
 }

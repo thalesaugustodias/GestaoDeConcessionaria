@@ -1,22 +1,14 @@
 ﻿using GestaoDeConcessionaria.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using NToastNotify;
 
 namespace GestaoDeConcessionaria.Web.Controllers
 {
-    public class DashboardController : Controller
+    public class DashboardController(IHttpClientFactory httpClientFactory, IToastNotification toastNotification) : Controller
     {
-        private readonly HttpClient _httpClient;
-
-        public DashboardController(IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
-        {
-            _httpClient = httpClientFactory.CreateClient("ApiClient");
-            var token = httpContextAccessor?.HttpContext?.Session.GetString("JWToken");
-            if (!string.IsNullOrEmpty(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
-        }
+        private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
+        private readonly IToastNotification _toastNotification = toastNotification;
 
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -31,14 +23,15 @@ namespace GestaoDeConcessionaria.Web.Controllers
             }
             else
             {
+                _toastNotification.AddErrorToastMessage("Erro ao carregar os dados do relatório.");
                 model = new DashboardViewModel
                 {
                     TotalVendas = 0,
                     Faturamento = 0,
                     TotalVeiculos = 0,
                     TotalClientes = 0,
-                    VendasMensais = new List<ChartData>(),
-                    VendasPorFabricante = new List<ChartData>()
+                    VendasMensais = [],
+                    VendasPorFabricante = []
                 };
             }
             return View(model);

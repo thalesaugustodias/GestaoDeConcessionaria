@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="anti-forgery-token" content="@antiforgery.GetAndStoreTokens(Context).RequestToken" />
-    <meta name="description" content="Sistema de Gestão De Concessionárias De Veículos - SGC" />
+    <meta name="description" content="Sistema de Gestão De Concessionárias De Veículos - SGCV" />
     <title>SGC - Sistema de Gestão De Concessionárias De Veículos</title>
 
     <!-- CSS -->
@@ -35,7 +35,7 @@
                     </a>
                 </li>
             </ul>
-            <ul class="navbar-nav ml-auto">                
+            <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" href="~/Account/Logout" title="Sair do Sistema">
                         <i class="fas fa-sign-out-alt"></i>
@@ -44,6 +44,7 @@
                 </li>
             </ul>
         </nav>
+
         @{
             var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
         }
@@ -118,14 +119,14 @@
 
         <!-- Footer -->
         <footer class="main-footer">
-            <strong>&copy; @DateTime.Now.Year SGC.</strong>
+            <strong>&copy; @DateTime.Now.Year SGCV.</strong>
             <span class="ml-1">Todos os direitos reservados.</span>
         </footer>
     </div>
 
     <!-- Scripts -->
     <script src="~/plugins/jquery/jquery.min.js"></script>
-    <script src="~/plugins/inputmask/jquery.inputmask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
     <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="~/dist/js/adminlte.min.js"></script>
     <script src="~/plugins/chart.js/Chart.min.js"></script>
@@ -142,6 +143,9 @@
             });
         });
     </script>
+
+    @await Component.InvokeAsync("NToastNotify")
+
     @RenderSection("Scripts", required: false)
 </body>
 </html>

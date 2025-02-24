@@ -2,13 +2,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using NToastNotify;
 
 namespace GestaoDeConcessionaria.Web.Controllers
 {
     [Authorize(Roles = "Gerente")]
-    public class VeiculosController(IHttpClientFactory httpClientFactory) : Controller
+    public class VeiculosController(IHttpClientFactory httpClientFactory, IToastNotification toastNotification) : Controller
     {
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
+        private readonly IToastNotification _toastNotification = toastNotification;
 
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -20,6 +22,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var veiculos = JsonConvert.DeserializeObject<IEnumerable<VeiculoViewModel>>(jsonData);
                 return View(veiculos);
             }
+            _toastNotification.AddErrorToastMessage("Erro ao carregar veículos.");
             return View(new List<VeiculoViewModel>());
         }
 
@@ -33,7 +36,8 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var veiculo = JsonConvert.DeserializeObject<VeiculoViewModel>(jsonData);
                 return View(veiculo);
             }
-            return NotFound();
+            _toastNotification.AddErrorToastMessage("Veículo não encontrado.");
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -48,11 +52,27 @@ namespace GestaoDeConcessionaria.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var content = new StringContent(JsonConvert.SerializeObject(model), System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonConvert.SerializeObject(model),System.Text.Encoding.UTF8,"application/json");
+
                 var response = await _httpClient.PostAsync("api/veiculos", content);
                 if (response.IsSuccessStatusCode)
+                {
+                    _toastNotification.AddSuccessToastMessage("Veículo criado com sucesso!");
                     return RedirectToAction("Index");
-                ModelState.AddModelError("", "Erro ao criar veículo.");
+                }
+                else
+                {
+                    var jsonError = await response.Content.ReadAsStringAsync();
+                    string errorMessage = "Erro ao criar veículo.";
+                    try
+                    {
+                        var errorObj = JsonConvert.DeserializeObject<dynamic>(jsonError);
+                        errorMessage = errorObj?.Message ?? errorMessage;
+                    }
+                    catch { }
+                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    return RedirectToAction("Create");
+                }
             }
             return View(model);
         }
@@ -67,7 +87,8 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var veiculo = JsonConvert.DeserializeObject<VeiculoViewModel>(jsonData);
                 return View(veiculo);
             }
-            return NotFound();
+            _toastNotification.AddErrorToastMessage("Veículo não encontrado para edição.");
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -76,11 +97,27 @@ namespace GestaoDeConcessionaria.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var content = new StringContent(JsonConvert.SerializeObject(model), System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonConvert.SerializeObject(model),System.Text.Encoding.UTF8,"application/json");
+
                 var response = await _httpClient.PutAsync($"api/veiculos/{id}", content);
                 if (response.IsSuccessStatusCode)
+                {
+                    _toastNotification.AddSuccessToastMessage("Veículo atualizado com sucesso!");
                     return RedirectToAction("Index");
-                ModelState.AddModelError("", "Erro ao atualizar veículo.");
+                }
+                else
+                {
+                    var jsonError = await response.Content.ReadAsStringAsync();
+                    string errorMessage = "Erro ao atualizar veículo.";
+                    try
+                    {
+                        var errorObj = JsonConvert.DeserializeObject<dynamic>(jsonError);
+                        errorMessage = errorObj?.Message ?? errorMessage;
+                    }
+                    catch { }
+                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    return RedirectToAction("Edit", new { id });
+                }
             }
             return View(model);
         }
@@ -95,7 +132,8 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var veiculo = JsonConvert.DeserializeObject<VeiculoViewModel>(jsonData);
                 return View(veiculo);
             }
-            return NotFound();
+            _toastNotification.AddErrorToastMessage("Veículo não encontrado para exclusão.");
+            return RedirectToAction("Index");
         }
 
         [HttpPost, ActionName("Delete")]
@@ -104,8 +142,23 @@ namespace GestaoDeConcessionaria.Web.Controllers
         {
             var response = await _httpClient.DeleteAsync($"api/veiculos/{id}");
             if (response.IsSuccessStatusCode)
+            {
+                _toastNotification.AddSuccessToastMessage("Veículo removido com sucesso!");
                 return RedirectToAction("Index");
-            return BadRequest();
+            }
+            else
+            {
+                var jsonError = await response.Content.ReadAsStringAsync();
+                string errorMessage = "Erro ao remover veículo.";
+                try
+                {
+                    var errorObj = JsonConvert.DeserializeObject<dynamic>(jsonError);
+                    errorMessage = errorObj?.Message ?? errorMessage;
+                }
+                catch { }
+                _toastNotification.AddErrorToastMessage(errorMessage);
+                return RedirectToAction("Index");
+            }
         }
     }
 }

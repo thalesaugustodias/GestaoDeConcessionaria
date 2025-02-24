@@ -52,47 +52,65 @@ namespace GestaoDeConcessionaria.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
             try
             {
                 var client = _clientFactory.CreateClient();
                 var response = await client.GetAsync($"https://viacep.com.br/ws/{concessionariaDto.CEP}/json/");
                 if (!response.IsSuccessStatusCode)
-                {
-                    return BadRequest("CEP inválido ou API de CEP indisponível.");
-                }
+                    return BadRequest(new { Message = "CEP inválido ou API de CEP indisponível." });
             }
             catch (Exception ex)
             {
-                return BadRequest("Erro ao validar CEP: " + ex.Message);
+                return BadRequest(new { Message = "Erro ao validar CEP: " + ex.Message });
             }
 
-            var concessionaria = ConcessionariaFactory.Criar(concessionariaDto);
-
-            await _servicoConcessionaria.AdicionarAsync(concessionaria);
-            await _cache.RemoveAsync("lista_concessionarias");
-            return CreatedAtAction(nameof(ObterPorId), new { id = concessionaria.Id }, concessionaria);
+            try
+            {
+                var concessionaria = ConcessionariaFactory.Criar(concessionariaDto);
+                await _servicoConcessionaria.AdicionarAsync(concessionaria);
+                await _cache.RemoveAsync("lista_concessionarias");
+                return CreatedAtAction(nameof(ObterPorId), new { id = concessionaria.Id }, concessionaria);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Erro ao adicionar concessionária: " + ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Atualizar(int id, [FromBody] ConcessionariaDTO concessionariaDto)
         {
-            var concessionariaExistente = await _servicoConcessionaria.ObterPorIdAsync(id);
-            if (concessionariaExistente == null)
-                return NotFound();
+            try
+            {
+                var concessionariaExistente = await _servicoConcessionaria.ObterPorIdAsync(id);
+                if (concessionariaExistente == null)
+                    return NotFound();
 
-            ConcessionariaFactory.Atualizar(concessionariaExistente, concessionariaDto);
-
-            await _servicoConcessionaria.AtualizarAsync(concessionariaExistente);
-            await _cache.RemoveAsync("lista_concessionarias");
-            return NoContent();
+                ConcessionariaFactory.Atualizar(concessionariaExistente, concessionariaDto);
+                await _servicoConcessionaria.AtualizarAsync(concessionariaExistente);
+                await _cache.RemoveAsync("lista_concessionarias");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Erro ao atualizar concessionária: " + ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Remover(int id)
         {
-            await _servicoConcessionaria.DeletarAsync(id);
-            await _cache.RemoveAsync("lista_concessionarias");
-            return NoContent();
+            try
+            {
+                await _servicoConcessionaria.DeletarAsync(id);
+                await _cache.RemoveAsync("lista_concessionarias");
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "Erro ao remover concessionária: " + ex.Message });
+            }
         }
     }
 }

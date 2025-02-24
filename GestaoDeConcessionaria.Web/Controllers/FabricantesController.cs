@@ -2,13 +2,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using NToastNotify;
 
 namespace GestaoDeConcessionaria.Web.Controllers
 {
     [Authorize(Roles = "Administrador")]
-    public class FabricantesController(IHttpClientFactory httpClientFactory) : Controller
+    public class FabricantesController(IHttpClientFactory httpClientFactory, IToastNotification toastNotification) : Controller
     {
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
+        private readonly IToastNotification _toastNotification = toastNotification;
 
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -20,6 +22,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var fabricantes = JsonConvert.DeserializeObject<IEnumerable<FabricanteViewModel>>(jsonData);
                 return View(fabricantes);
             }
+            _toastNotification.AddErrorToastMessage("Erro ao carregar fabricantes.");
             return View(new List<FabricanteViewModel>());
         }
 
@@ -33,7 +36,8 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var fabricante = JsonConvert.DeserializeObject<FabricanteViewModel>(jsonData);
                 return View(fabricante);
             }
-            return NotFound();
+            _toastNotification.AddErrorToastMessage("Fabricante não encontrado.");
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -48,11 +52,30 @@ namespace GestaoDeConcessionaria.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var content = new StringContent(JsonConvert.SerializeObject(model), System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    System.Text.Encoding.UTF8,
+                    "application/json");
+
                 var response = await _httpClient.PostAsync("api/fabricantes", content);
                 if (response.IsSuccessStatusCode)
+                {
+                    _toastNotification.AddSuccessToastMessage("Fabricante criado com sucesso!");
                     return RedirectToAction("Index");
-                ModelState.AddModelError("", "Erro ao criar fabricante.");
+                }
+                else
+                {
+                    var jsonError = await response.Content.ReadAsStringAsync();
+                    string errorMessage = "Erro ao criar fabricante.";
+                    try
+                    {
+                        var errorObj = JsonConvert.DeserializeObject<dynamic>(jsonError);
+                        errorMessage = errorObj?.Message ?? errorMessage;
+                    }
+                    catch { }
+                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    return RedirectToAction("Create");
+                }
             }
             return View(model);
         }
@@ -67,7 +90,8 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 var fabricante = JsonConvert.DeserializeObject<FabricanteViewModel>(jsonData);
                 return View(fabricante);
             }
-            return NotFound();
+            _toastNotification.AddErrorToastMessage("Fabricante não encontrado para edição.");
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -76,14 +100,33 @@ namespace GestaoDeConcessionaria.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var content = new StringContent(JsonConvert.SerializeObject(model), System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(
+                    JsonConvert.SerializeObject(model),
+                    System.Text.Encoding.UTF8,
+                    "application/json");
+
                 var response = await _httpClient.PutAsync($"api/fabricantes/{id}", content);
                 if (response.IsSuccessStatusCode)
+                {
+                    _toastNotification.AddSuccessToastMessage("Fabricante atualizado com sucesso!");
                     return RedirectToAction("Index");
-                ModelState.AddModelError("", "Erro ao atualizar fabricante.");
+                }
+                else
+                {
+                    var jsonError = await response.Content.ReadAsStringAsync();
+                    string errorMessage = "Erro ao atualizar fabricante.";
+                    try
+                    {
+                        var errorObj = JsonConvert.DeserializeObject<dynamic>(jsonError);
+                        errorMessage = errorObj?.Message ?? errorMessage;
+                    }
+                    catch { }
+                    _toastNotification.AddErrorToastMessage(errorMessage);
+                    return RedirectToAction("Edit", new { id });
+                }
             }
             return View(model);
-        }     
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -91,8 +134,23 @@ namespace GestaoDeConcessionaria.Web.Controllers
         {
             var response = await _httpClient.DeleteAsync($"api/fabricantes/{id}");
             if (response.IsSuccessStatusCode)
+            {
+                _toastNotification.AddSuccessToastMessage("Fabricante removido com sucesso!");
                 return RedirectToAction("Index");
-            return BadRequest();
+            }
+            else
+            {
+                var jsonError = await response.Content.ReadAsStringAsync();
+                string errorMessage = "Erro ao remover fabricante.";
+                try
+                {
+                    var errorObj = JsonConvert.DeserializeObject<dynamic>(jsonError);
+                    errorMessage = errorObj?.Message ?? errorMessage;
+                }
+                catch { }
+                _toastNotification.AddErrorToastMessage(errorMessage);
+                return RedirectToAction("Index");
+            }
         }
     }
 }
