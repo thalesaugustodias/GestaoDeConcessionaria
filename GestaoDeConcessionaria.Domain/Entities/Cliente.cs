@@ -1,16 +1,11 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace GestaoDeConcessionaria.Domain.Entities
 {
     public class Cliente
     {
-        public int Id { get; private set; }
-        public string Nome { get; private set; }
-        public string CPF { get; private set; }
-        public string Telefone { get; private set; }
-        public bool Ativo { get; private set; }
-
-        private Cliente() { }
+        public Cliente() { }
 
         public Cliente(string nome, string cpf, string telefone)
         {
@@ -20,6 +15,17 @@ namespace GestaoDeConcessionaria.Domain.Entities
             Telefone = telefone;
             Ativo = true;
         }
+
+        [JsonInclude]
+        public int Id { get; private set; }
+        [JsonInclude]
+        public string Nome { get; private set; }
+        [JsonInclude]
+        public string CPF { get; private set; }
+        [JsonInclude]
+        public string Telefone { get; private set; }
+        [JsonInclude]
+        public bool Ativo { get; private set; }
 
         private static void Validar(string nome, string cpf, string telefone)
         {

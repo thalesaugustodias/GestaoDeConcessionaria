@@ -1,20 +1,11 @@
 ﻿using GestaoDeConcessionaria.Domain.Enums;
+using System.Text.Json.Serialization;
 
 namespace GestaoDeConcessionaria.Domain.Entities
 {
     public class Veiculo
     {
-        public int Id { get; private set; }
-        public string Modelo { get; private set; }
-        public int AnoFabricacao { get; private set; }
-        public decimal Preco { get; private set; }
-        public TipoVeiculo Tipo { get; private set; }
-        public string Descricao { get; private set; }
-        public int FabricanteId { get; private set; }
-        public Fabricante Fabricante { get; private set; }
-        public bool Ativo { get; private set; }
-
-        private Veiculo() { }
+        public Veiculo() { }
 
         public Veiculo(string modelo, int anoFabricacao, decimal preco, TipoVeiculo tipo, string descricao, Fabricante fabricante)
         {
@@ -28,6 +19,25 @@ namespace GestaoDeConcessionaria.Domain.Entities
             FabricanteId = fabricante.Id;
             Ativo = true;
         }
+
+        [JsonInclude]
+        public int Id { get; private set; }
+        [JsonInclude]
+        public string Modelo { get; private set; }
+        [JsonInclude]
+        public int AnoFabricacao { get; private set; }
+        [JsonInclude]
+        public decimal Preco { get; private set; }
+        [JsonInclude]
+        public TipoVeiculo Tipo { get; private set; }
+        [JsonInclude]
+        public string Descricao { get; private set; }
+        [JsonInclude]
+        public int FabricanteId { get; private set; }
+        [JsonInclude]
+        public Fabricante Fabricante { get; private set; }
+        [JsonInclude]
+        public bool Ativo { get; private set; }
 
         private static void Validar(string modelo, int anoFabricacao, decimal preco, Fabricante fabricante)
         {

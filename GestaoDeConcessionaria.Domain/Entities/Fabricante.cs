@@ -1,15 +1,11 @@
-﻿namespace GestaoDeConcessionaria.Domain.Entities
+﻿using System;
+using System.Text.Json.Serialization;
+
+namespace GestaoDeConcessionaria.Domain.Entities
 {
     public class Fabricante
     {
-        public int Id { get; private set; }
-        public string Nome { get; private set; }
-        public string PaisOrigem { get; private set; }
-        public int AnoFundacao { get; private set; }
-        public string Website { get; private set; }
-        public bool Ativo { get; private set; }
-
-        private Fabricante() { }
+        public Fabricante() { }
 
         public Fabricante(string nome, string paisOrigem, int anoFundacao, string website)
         {
@@ -20,6 +16,24 @@
             Website = website;
             Ativo = true;
         }
+
+        [JsonInclude]
+        public int Id { get; private set; }
+
+        [JsonInclude]
+        public string Nome { get; private set; }
+
+        [JsonInclude]
+        public string PaisOrigem { get; private set; }
+
+        [JsonInclude]
+        public int AnoFundacao { get; private set; }
+
+        [JsonInclude]
+        public string Website { get; private set; }
+
+        [JsonInclude]
+        public bool Ativo { get; private set; }       
 
         private static void Validar(string nome, string paisOrigem, int anoFundacao, string website)
         {

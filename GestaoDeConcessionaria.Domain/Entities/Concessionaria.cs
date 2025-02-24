@@ -1,21 +1,11 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace GestaoDeConcessionaria.Domain.Entities
 {
     public class Concessionaria
     {
-        public int Id { get; private set; }
-        public string Nome { get; private set; }
-        public string Rua { get; private set; }
-        public string Cidade { get; private set; }
-        public string Estado { get; private set; }
-        public string CEP { get; private set; }
-        public string Telefone { get; private set; }
-        public string Email { get; private set; }
-        public int CapacidadeMaximaVeiculos { get; private set; }
-        public bool Ativo { get; private set; }
-
-        private Concessionaria() { }
+        public Concessionaria() { }
 
         public Concessionaria(string nome, string rua, string cidade, string estado, string cep, string telefone, string email, int capacidadeMaxima)
         {
@@ -30,6 +20,27 @@ namespace GestaoDeConcessionaria.Domain.Entities
             CapacidadeMaximaVeiculos = capacidadeMaxima;
             Ativo = true;
         }
+
+        [JsonInclude]
+        public int Id { get; private set; }
+        [JsonInclude]
+        public string Nome { get; private set; }
+        [JsonInclude]
+        public string Rua { get; private set; }
+        [JsonInclude]
+        public string Cidade { get; private set; }
+        [JsonInclude]
+        public string Estado { get; private set; }
+        [JsonInclude]
+        public string CEP { get; private set; }
+        [JsonInclude]
+        public string Telefone { get; private set; }
+        [JsonInclude]
+        public string Email { get; private set; }
+        [JsonInclude]
+        public int CapacidadeMaximaVeiculos { get; private set; }
+        [JsonInclude]
+        public bool Ativo { get; private set; }
 
         private static void Validar(string nome, string rua, string cidade, string estado, string cep, string telefone, string email, int capacidadeMaxima)
         {

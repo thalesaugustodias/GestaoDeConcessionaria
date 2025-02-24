@@ -1,8 +1,12 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Antiforgery
+@inject IAntiforgery antiforgery
+
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="anti-forgery-token" content="@antiforgery.GetAndStoreTokens(Context).RequestToken" />
     <meta name="description" content="Sistema de Gestão De Concessionárias De Veículos - SGC" />
     <title>SGC - Sistema de Gestão De Concessionárias De Veículos</title>
 
@@ -128,6 +132,16 @@
     <script src="~/plugins/toastr/toastr.min.js"></script>
     <script src="~/plugins/sweetalert2/sweetalert2.all.min.js"></script>
     <script src="~/js/site.js"></script>
+    <script>
+        $(function () {
+            var token = $('meta[name="anti-forgery-token"]').attr('content');
+            $.ajaxSetup({
+                headers: {
+                    'RequestVerificationToken': token
+                }
+            });
+        });
+    </script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

@@ -12,16 +12,10 @@ namespace GestaoDeConcessionaria.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Administrador")]
-    public class FabricantesController : ControllerBase
+    public class FabricantesController(IFabricanteService servicoFabricante, IDistributedCache cache) : ControllerBase
     {
-        private readonly IFabricanteService _servicoFabricante;
-        private readonly IDistributedCache _cache;
-
-        public FabricantesController(IFabricanteService servicoFabricante, IDistributedCache cache)
-        {
-            _servicoFabricante = servicoFabricante;
-            _cache = cache;
-        }
+        private readonly IFabricanteService _servicoFabricante = servicoFabricante;
+        private readonly IDistributedCache _cache = cache;
 
         [HttpGet]
         [AllowAnonymous]

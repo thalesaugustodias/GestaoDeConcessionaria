@@ -1,20 +1,10 @@
-﻿namespace GestaoDeConcessionaria.Domain.Entities
+﻿using System.Text.Json.Serialization;
+
+namespace GestaoDeConcessionaria.Domain.Entities
 {
     public class Venda
     {
-        public int Id { get; private set; }
-        public int VeiculoId { get; private set; }
-        public Veiculo Veiculo { get; private set; }
-        public int ConcessionariaId { get; private set; }
-        public Concessionaria Concessionaria { get; private set; }
-        public int ClienteId { get; private set; }
-        public Cliente Cliente { get; private set; }
-        public DateTime DataVenda { get; private set; }
-        public decimal PrecoVenda { get; private set; }
-        public string ProtocoloVenda { get; private set; }
-        public bool Ativo { get; private set; }
-
-        private Venda() { }
+        public Venda() { }
 
         public Venda(Veiculo veiculo, Concessionaria concessionaria, Cliente cliente, DateTime dataVenda, decimal precoVenda)
         {
@@ -30,6 +20,29 @@
             ProtocoloVenda = GerarProtocolo();
             Ativo = true;
         }
+
+        [JsonInclude]
+        public int Id { get; private set; }
+        [JsonInclude]
+        public int VeiculoId { get; private set; }
+        [JsonInclude]
+        public Veiculo Veiculo { get; private set; }
+        [JsonInclude]
+        public int ConcessionariaId { get; private set; }
+        [JsonInclude]
+        public Concessionaria Concessionaria { get; private set; }
+        [JsonInclude]
+        public int ClienteId { get; private set; }
+        [JsonInclude]
+        public Cliente Cliente { get; private set; }
+        [JsonInclude]
+        public DateTime DataVenda { get; private set; }
+        [JsonInclude]
+        public decimal PrecoVenda { get; private set; }
+        [JsonInclude]
+        public string ProtocoloVenda { get; private set; }
+        [JsonInclude]
+        public bool Ativo { get; private set; }
 
         private static void Validar(Veiculo veiculo, Concessionaria concessionaria, Cliente cliente, DateTime dataVenda, decimal precoVenda)
         {
