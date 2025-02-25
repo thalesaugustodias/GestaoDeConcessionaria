@@ -16,4 +16,8 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\GestaoDeConcessionaria.Domain\GestaoDeConcessionaria.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

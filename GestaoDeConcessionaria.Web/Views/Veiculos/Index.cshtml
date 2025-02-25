@@ -64,7 +64,8 @@
                                 <td class="text-center">
                                     <span class="badge badge-info">
                                         @{
-                                            var icon = item.Tipo.ToLower() switch
+                                            var tipoTexto = item.Tipo.ToString().ToLower();
+                                            var icon = tipoTexto switch
                                             {
                                                 "carro" => "car",
                                                 "moto" => "motorcycle",
@@ -77,6 +78,7 @@
                                         <i class="fas fa-@icon mr-1"></i>
                                         @item.Tipo
                                     </span>
+
                                 </td>
                                 <td class="text-center">
                                     <span class="badge badge-secondary">

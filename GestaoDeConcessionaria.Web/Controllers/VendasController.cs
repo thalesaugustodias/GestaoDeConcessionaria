@@ -1,9 +1,11 @@
-﻿using GestaoDeConcessionaria.Web.Extensions;
+﻿using GestaoDeConcessionaria.Domain.Entities;
+using GestaoDeConcessionaria.Web.Extensions;
 using GestaoDeConcessionaria.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using NToastNotify;
+using System.Text.Json;
+using static GestaoDeConcessionaria.Web.Factories.VendaFactory;
 
 namespace GestaoDeConcessionaria.Web.Controllers
 {
@@ -20,12 +22,17 @@ namespace GestaoDeConcessionaria.Web.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var jsonData = await response.Content.ReadAsStringAsync();
-                var vendas = JsonConvert.DeserializeObject<IEnumerable<VendaViewModel>>(jsonData);
-                return View(vendas);
+                var vendasDomain = JsonSerializer.Deserialize<IEnumerable<Venda>>(jsonData, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+                var vendasViewModel = VendaViewModelFactory.Create(vendasDomain);
+                return View(vendasViewModel);
             }
             _toastNotification.AddErrorToastMessageCustom("Erro ao carregar vendas.");
             return View(new List<VendaViewModel>());
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Details(int id)
@@ -34,7 +41,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var jsonData = await response.Content.ReadAsStringAsync();
-                var venda = JsonConvert.DeserializeObject<VendaViewModel>(jsonData);
+                var venda = JsonSerializer.Deserialize<VendaViewModel>(jsonData);
                 return View(venda);
             }
             _toastNotification.AddErrorToastMessageCustom("Venda não encontrada.");
@@ -42,10 +49,41 @@ namespace GestaoDeConcessionaria.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var veiculosResponse = await _httpClient.GetAsync("api/veiculos");
+            var concessionariasResponse = await _httpClient.GetAsync("api/concessionarias");
+            var clientesResponse = await _httpClient.GetAsync("api/clientes");
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            if (veiculosResponse.IsSuccessStatusCode && concessionariasResponse.IsSuccessStatusCode && clientesResponse.IsSuccessStatusCode)
+            {
+                var veiculosJson = await veiculosResponse.Content.ReadAsStringAsync();
+                var concessionariasJson = await concessionariasResponse.Content.ReadAsStringAsync();
+                var clientesJson = await clientesResponse.Content.ReadAsStringAsync();
+
+                var veiculos = JsonSerializer.Deserialize<IEnumerable<VeiculoViewModel>>(veiculosJson, options);
+                var concessionarias = JsonSerializer.Deserialize<IEnumerable<ConcessionariaViewModel>>(concessionariasJson, options);
+                var clientes = JsonSerializer.Deserialize<IEnumerable<ClienteViewModel>>(clientesJson, options);
+
+                ViewBag.Veiculos = veiculos ?? [];
+                ViewBag.Concessionarias = concessionarias ?? [];
+                ViewBag.Clientes = clientes ?? [];
+            }
+            else
+            {
+                ViewBag.Veiculos = new List<VeiculoViewModel>();
+                ViewBag.Concessionarias = new List<ConcessionariaViewModel>();
+                ViewBag.Clientes = new List<ClienteViewModel>();
+            }
+
             return View(new VendaViewModel());
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -53,7 +91,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var content = new StringContent(JsonConvert.SerializeObject(model),System.Text.Encoding.UTF8,"application/json");
+                var content = new StringContent(JsonSerializer.Serialize(model), System.Text.Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync("api/vendas", content);
                 if (response.IsSuccessStatusCode)
                 {
@@ -66,7 +104,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
                     string errorMessage = "Erro ao criar venda.";
                     try
                     {
-                        var errorObj = JsonConvert.DeserializeObject<dynamic>(jsonError);
+                        var errorObj = JsonSerializer.Deserialize<dynamic>(jsonError);
                         errorMessage = errorObj?.Message ?? errorMessage;
                     }
                     catch { }
