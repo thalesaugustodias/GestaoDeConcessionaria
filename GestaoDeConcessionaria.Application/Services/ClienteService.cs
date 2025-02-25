@@ -4,9 +4,9 @@ using GestaoDeConcessionaria.Domain.Interfaces;
 
 namespace GestaoDeConcessionaria.Application.Services
 {
-    public class ClienteService(IRepositorio<Cliente> repositorioCliente) : IClienteService
+    public class ClienteService(IClienteRepository repositorioCliente) : IClienteService
     {
-        private readonly IRepositorio<Cliente> _repositorioCliente = repositorioCliente;
+        private readonly IClienteRepository _repositorioCliente = repositorioCliente;
 
         public async Task<IEnumerable<Cliente>> ObterTodosAsync()
         {
@@ -20,6 +20,12 @@ namespace GestaoDeConcessionaria.Application.Services
 
         public async Task AdicionarAsync(Cliente cliente)
         {
+            var clienteExistente = await _repositorioCliente.CPFJaCadastradoAsync(cliente.CPF);
+            if (clienteExistente)
+            {
+                throw new ArgumentException("Já existe um cliente cadastrado com esse CPF.");
+            }
+
             await _repositorioCliente.AdicionarAsync(cliente);
             await _repositorioCliente.SalvarAsync();
         }

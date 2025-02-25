@@ -1,4 +1,6 @@
 ﻿@model GestaoDeConcessionaria.Web.Models.LoginViewModel
+@using NToastNotify
+
 @{
     Layout = null;
 }
@@ -47,25 +49,7 @@
             </button>
         </form>
     </div>
-
     <script src="~/plugins/jquery/jquery.min.js"></script>
-    <script src="~/plugins/toastr/toastr.min.js"></script>
-    <script>
-        $(function () {
-            toastr.options = {
-                "closeButton": true,
-                "progressBar": true,
-                "positionClass": "toast-top-right",
-                "timeOut": "3000"
-            };
-
-        @if (ViewData.ModelState.ErrorCount > 0)
-        {
-            <text>
-                    toastr.error('Falha na autenticação. Verifique suas credenciais.', 'Erro');
-            </text>
-        }
-        });
-    </script>
+    @await Component.InvokeAsync("NToastNotify")
 </body>
 </html>

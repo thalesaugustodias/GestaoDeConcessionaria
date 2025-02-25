@@ -91,8 +91,9 @@
 @section Scripts {
     <script>
         var ctxVendas = document.getElementById('graficoVendas').getContext('2d');
-        var labelsVendas = @Html.Raw(JsonConvert.SerializeObject(Model.VendasMensais?.ConvertAll(x => x.Label) ?? new List<string>()));
-        var dataVendas = @Html.Raw(JsonConvert.SerializeObject(Model.VendasMensais?.ConvertAll(x => x.Value) ?? new List<int>()));
+        var labelsVendas = @Html.Raw(JsonConvert.SerializeObject(Model.VendasMensais?.Select(x => x.Label).ToList() ?? new List<string>()));
+        var dataVendas = @Html.Raw(JsonConvert.SerializeObject(Model.VendasMensais?.Select(x => x.Value).ToList() ?? new List<int>()));
+
         var graficoVendas = new Chart(ctxVendas, {
             type: 'line',
             data: {

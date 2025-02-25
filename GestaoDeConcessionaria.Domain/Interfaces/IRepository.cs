@@ -1,6 +1,6 @@
 ﻿namespace GestaoDeConcessionaria.Domain.Interfaces
 {
-    public interface IRepositorio<T> where T : class
+    public interface IRepository<T> where T : class
     {
         Task<IEnumerable<T>> ObterTodosAsync();
         Task<T> ObterPorIdAsync(int id);

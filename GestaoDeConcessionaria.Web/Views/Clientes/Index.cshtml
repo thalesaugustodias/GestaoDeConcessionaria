@@ -150,24 +150,16 @@
                     });
 
                     $.post(`/Clientes/Delete/${id}`)
-                        .done(function (response) {
-                            if (response.success) {
-                                Swal.fire({
-                                    title: 'Excluído!',
-                                    text: 'O cliente foi excluído com sucesso.',
-                                    icon: 'success',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    window.location.reload();
-                                });
-                            } else {
-                                Swal.fire(
-                                    'Erro!',
-                                    response.message || 'Não foi possível excluir o cliente.',
-                                    'error'
-                                );
-                            }
+                        .done(function () {
+                            Swal.fire({
+                                title: 'Excluído!',
+                                text: 'O cliente foi excluído com sucesso.',
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.reload();
+                            });
                         })
                         .fail(function () {
                             Swal.fire(

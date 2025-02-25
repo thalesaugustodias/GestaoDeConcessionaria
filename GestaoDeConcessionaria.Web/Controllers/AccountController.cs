@@ -6,14 +6,22 @@ using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using NToastNotify;
+using GestaoDeConcessionaria.Web.Extensions;
 
 namespace GestaoDeConcessionaria.Web.Controllers
 {
-    public class AccountController(IHttpClientFactory httpClientFactory, IConfiguration configuration, IToastNotification toastNotification) : Controller
+    public class AccountController : Controller
     {
-        private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
-        private readonly IConfiguration _configuration = configuration;
-        private readonly IToastNotification _toastNotification = toastNotification;
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
+        private readonly IToastNotification _toastNotification;
+
+        public AccountController(IHttpClientFactory httpClientFactory, IConfiguration configuration, IToastNotification toastNotification)
+        {
+            _httpClient = httpClientFactory.CreateClient("ApiClient");
+            _configuration = configuration;
+            _toastNotification = toastNotification;
+        }
 
         [HttpGet]
         public IActionResult Login()
@@ -59,7 +67,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
             }
             else
             {
-                _toastNotification.AddErrorToastMessage("Credenciais inválidas.");
+                _toastNotification.AddErrorToastMessageCustom("Credenciais inválidas.");
                 return View(model);
             }
         }

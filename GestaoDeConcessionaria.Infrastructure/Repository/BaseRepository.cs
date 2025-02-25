@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestaoDeConcessionaria.Infrastructure.Repository
 {
-    public class RepositorioBase<T> : IRepositorio<T> where T : class
+    public class BaseRepository<T> : IRepository<T> where T : class
     {
         protected readonly AplicationDbContext _contexto;
         protected readonly DbSet<T> _dbSet;
 
-        public RepositorioBase(AplicationDbContext contexto)
+        public BaseRepository(AplicationDbContext contexto)
         {
             _contexto = contexto;
             _dbSet = _contexto.Set<T>();

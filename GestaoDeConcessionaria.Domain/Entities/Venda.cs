@@ -58,7 +58,7 @@ namespace GestaoDeConcessionaria.Domain.Entities
                 throw new ArgumentException("Preço de venda inválido.");
         }
 
-        private string GerarProtocolo()
+        private static string GerarProtocolo()
         {
             return $"VEN-{DateTime.Now:yyyyMMddHHmmss}-{new Random().Next(1000, 9999)}";
         }

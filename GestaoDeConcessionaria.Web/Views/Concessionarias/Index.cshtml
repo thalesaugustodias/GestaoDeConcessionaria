@@ -166,32 +166,25 @@
                             Swal.showLoading()
                         }
                     });
+
                     $.post(`/Concessionarias/Delete/${id}`)
-                        .done(function (response) {
-                            if (response.success) {
-                                Swal.fire({
-                                    title: 'Excluída!',
-                                    text: 'A concessionária foi excluída com sucesso.',
-                                    icon: 'success',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    window.location.reload();
-                                });
-                            } else {
-                                Swal.fire(
-                                    'Erro!',
-                                    response.message || 'Não foi possível excluir a concessionária.',
-                                    'error'
-                                );
-                            }
+                        .done(function () {
+                            Swal.fire({
+                                title: 'Excluído!',
+                                text: 'O concessionária foi excluído com sucesso.',
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.reload();
+                            });
                         })
                         .fail(function () {
-                            Swal.fire({
-                                title: 'Erro!',
-                                text: 'Ocorreu um erro ao excluir a concessionária. Verifique se não existem vendas ou veículos vinculados.',
-                                icon: 'error'
-                            });
+                            Swal.fire(
+                                'Erro!',
+                                'Ocorreu um erro ao excluir o concessionária.',
+                                'error'
+                            );
                         });
                 }
             });

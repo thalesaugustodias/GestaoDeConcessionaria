@@ -4,9 +4,9 @@ using GestaoDeConcessionaria.Domain.Interfaces;
 
 namespace GestaoDeConcessionaria.Application.Services
 {
-    public class ConcessionariaService(IRepositorio<Concessionaria> repositorioConcessionaria) : IConcessionariaService
+    public class ConcessionariaService(IRepository<Concessionaria> repositorioConcessionaria) : IConcessionariaService
     {
-        private readonly IRepositorio<Concessionaria> _repositorioConcessionaria = repositorioConcessionaria;
+        private readonly IRepository<Concessionaria> _repositorioConcessionaria = repositorioConcessionaria;
 
         public async Task<IEnumerable<Concessionaria>> ObterTodosAsync()
         {

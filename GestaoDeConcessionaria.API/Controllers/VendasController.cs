@@ -34,7 +34,7 @@ namespace GestaoDeConcessionaria.API.Controllers
                 return Ok(vendasCache);
             }
 
-            var vendas = await _servicoVenda.ObterTodosAsync();
+            var vendas = await _servicoVenda.ObterTodasAsVendasAsync();
             jsonLista = JsonSerializer.Serialize(vendas);
             var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
             await _cache.SetStringAsync(cacheKey, jsonLista, options);
@@ -52,7 +52,7 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Adicionar([FromBody] VendaDTO dto)
+        public async Task<IActionResult> Criar([FromBody] VendaDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

@@ -171,33 +171,23 @@
                     });
 
                     $.post(`/Veiculos/Delete/${id}`)
-                        .done(function (response) {
-                            if (response.success) {
-                                Swal.fire({
-                                    title: 'Excluído!',
-                                    text: 'O veículo foi excluído com sucesso.',
-                                    icon: 'success',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                }).then(() => {
-                                    window.location.reload();
-                                });
-                            } else {
-                                Swal.fire({
-                                    title: 'Erro!',
-                                    text: response.message || 'Não foi possível excluir o veículo.',
-                                    icon: 'error',
-                                    footer: '<small>Verifique se não existem vendas pendentes</small>'
-                                });
-                            }
+                        .done(function () {
+                            Swal.fire({
+                                title: 'Excluído!',
+                                text: 'O veículo foi excluído com sucesso.',
+                                icon: 'success',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.reload();
+                            });
                         })
                         .fail(function () {
-                            Swal.fire({
-                                title: 'Erro!',
-                                text: 'Ocorreu um erro ao excluir o veículo.',
-                                icon: 'error',
-                                footer: '<small>Verifique se não existem vendas vinculadas</small>'
-                            });
+                            Swal.fire(
+                                'Erro!',
+                                'Ocorreu um erro ao excluir o veículo.',
+                                'error'
+                            );
                         });
                 }
             });

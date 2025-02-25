@@ -48,7 +48,7 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Adicionar([FromBody] VeiculoDTO dto)
+        public async Task<IActionResult> Criar([FromBody] VeiculoDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

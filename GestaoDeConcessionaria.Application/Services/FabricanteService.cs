@@ -4,9 +4,9 @@ using GestaoDeConcessionaria.Domain.Interfaces;
 
 namespace GestaoDeConcessionaria.Application.Services
 {
-    public class FabricanteService(IRepositorio<Fabricante> repositorioFabricante) : IFabricanteService
+    public class FabricanteService(IRepository<Fabricante> repositorioFabricante) : IFabricanteService
     {
-        private readonly IRepositorio<Fabricante> _repositorioFabricante = repositorioFabricante;
+        private readonly IRepository<Fabricante> _repositorioFabricante = repositorioFabricante;
 
         public async Task<IEnumerable<Fabricante>> ObterTodosAsync()
         {

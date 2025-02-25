@@ -6,10 +6,10 @@ namespace GestaoDeConcessionaria.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Gerente")]
-    public class RelatoriosController(IVendaService servicoVenda) : ControllerBase
+    [Authorize(Roles = "Gerente,Administrador")]
+    public class RelatoriosController(IRelatorioService relatorioService) : ControllerBase
     {
-        private readonly IVendaService _servicoVenda = servicoVenda;
+        private readonly IRelatorioService _relatorioService = relatorioService;
 
         [HttpGet("mensal")]
         public async Task<IActionResult> RelatorioMensal(int mes, int ano)
@@ -21,28 +21,7 @@ namespace GestaoDeConcessionaria.API.Controllers
 
             try
             {
-                var vendas = await _servicoVenda.ObterTodosAsync();
-                var vendasMensais = vendas.Where(v => v.DataVenda.Month == mes && v.DataVenda.Year == ano).ToList();
-
-                if (!vendasMensais.Any())
-                    return NotFound(new { Message = "Nenhuma venda encontrada para o período informado." });
-
-                var totalVendas = vendasMensais.Count;
-                var vendasPorTipo = vendasMensais.GroupBy(v => v.Veiculo.Tipo)
-                    .Select(g => new { Tipo = g.Key.ToString(), Quantidade = g.Count() });
-                var vendasPorFabricante = vendasMensais.GroupBy(v => v.Veiculo.Fabricante.Nome)
-                    .Select(g => new { Fabricante = g.Key, Quantidade = g.Count() });
-                var desempenhoConcessionarias = vendasMensais.GroupBy(v => v.Concessionaria.Nome)
-                    .Select(g => new { Concessionaria = g.Key, Quantidade = g.Count() });
-
-                var relatorio = new
-                {
-                    TotalVendas = totalVendas,
-                    VendasPorTipo = vendasPorTipo,
-                    VendasPorFabricante = vendasPorFabricante,
-                    DesempenhoConcessionarias = desempenhoConcessionarias
-                };
-
+                var relatorio = await _relatorioService.GerarRelatorioMensalAsync(mes, ano);
                 return Ok(relatorio);
             }
             catch (Exception ex)

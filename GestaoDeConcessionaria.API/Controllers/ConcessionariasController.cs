@@ -12,11 +12,12 @@ namespace GestaoDeConcessionaria.API.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Administrador")]
-    public class ConcessionariasController(IConcessionariaService servicoConcessionaria, IDistributedCache cache, IHttpClientFactory clientFactory) : ControllerBase
+    public class ConcessionariasController(IConcessionariaService servicoConcessionaria, IDistributedCache cache, IHttpClientFactory clientFactory, IViaCepService viaCepService) : ControllerBase
     {
         private readonly IConcessionariaService _servicoConcessionaria = servicoConcessionaria;
         private readonly IDistributedCache _cache = cache;
         private readonly IHttpClientFactory _clientFactory = clientFactory;
+        private readonly IViaCepService _viaCepService = viaCepService;
 
         [HttpGet]
         [AllowAnonymous]
@@ -48,29 +49,28 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Adicionar([FromBody] ConcessionariaDTO concessionariaDto)
+        public async Task<IActionResult> Criar([FromBody] ConcessionariaDTO concessionariaDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var client = _clientFactory.CreateClient();
-                var response = await client.GetAsync($"https://viacep.com.br/ws/{concessionariaDto.CEP}/json/");
-                if (!response.IsSuccessStatusCode)
-                    return BadRequest(new { Message = "CEP inválido ou API de CEP indisponível." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = "Erro ao validar CEP: " + ex.Message });
-            }
+                string enderecoJson = await _viaCepService.ObterEnderecoPorCEPAsync(concessionariaDto.CEP);
+                var endereco = JsonDocument.Parse(enderecoJson).RootElement;
+                if (endereco.TryGetProperty("erro", out var erro) && erro.GetBoolean())
+                {
+                    return BadRequest(new { Message = "CEP não encontrado." });
+                }
 
-            try
-            {
                 var concessionaria = ConcessionariaFactory.Criar(concessionariaDto);
                 await _servicoConcessionaria.AdicionarAsync(concessionaria);
                 await _cache.RemoveAsync("lista_concessionarias");
                 return CreatedAtAction(nameof(ObterPorId), new { id = concessionaria.Id }, concessionaria);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { ex.Message });
             }
             catch (Exception ex)
             {

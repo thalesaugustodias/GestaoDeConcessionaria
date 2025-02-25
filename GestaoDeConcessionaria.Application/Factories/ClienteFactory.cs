@@ -1,4 +1,5 @@
 ﻿using GestaoDeConcessionaria.Application.DTOs;
+using GestaoDeConcessionaria.Application.Extensions;
 using GestaoDeConcessionaria.Domain.Entities;
 
 namespace GestaoDeConcessionaria.Application.Factories
@@ -7,12 +8,14 @@ namespace GestaoDeConcessionaria.Application.Factories
     {
         public static Cliente Criar(ClienteDTO dto)
         {
-            return new Cliente(dto.Nome, dto.CPF, dto.Telefone);
+            string cpf = dto.CPF.SomenteDigitos();
+            return new Cliente(dto.Nome, cpf, dto.Telefone);
         }
 
         public static void Atualizar(Cliente entidade, ClienteDTO dto)
         {
-            entidade.Atualizar(dto.Nome, dto.CPF, dto.Telefone);
+            string cpf = dto.CPF.SomenteDigitos();
+            entidade.Atualizar(dto.Nome, cpf, dto.Telefone);
         }
     }
 }

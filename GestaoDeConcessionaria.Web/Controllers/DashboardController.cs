@@ -15,7 +15,8 @@ namespace GestaoDeConcessionaria.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var anoAtual = DateTime.Now.Year;
-            var response = await _httpClient.GetAsync($"api/relatorios/mensal?mes=8&ano={anoAtual}");
+            var mesAtual = DateTime.Now.Month;
+            var response = await _httpClient.GetAsync($"api/relatorios/mensal?mes={mesAtual}&ano={anoAtual}");
             DashboardViewModel model;
             if (response.IsSuccessStatusCode)
             {

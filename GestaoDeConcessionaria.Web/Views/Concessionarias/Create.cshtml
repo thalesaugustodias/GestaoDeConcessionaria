@@ -172,38 +172,38 @@
 </section>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        $(document).ready(function() {
-            $('.cep-mask').mask('00000-000');
-            $('.telefone-mask').mask('(00) 0000-0000');
-            $("#buscarCep").click(function() {
-                var cep = $("#cep").val().replace(/\D/g, '');
+<partial name="_ValidationScriptsPartial" />
+<script>
+    $(document).ready(function () {
+        $('.cep-mask').mask('00000-000');
+        $('.telefone-mask').mask('(00) 0000-0000');
 
-                if (cep.length !== 8) {
-                    toastr.error('CEP inválido');
-                    return;
-                }
-
-                $.getJSON(`https://viacep.com.br/ws/${cep}/json/`, function(data) {
-                    if (!data.erro) {
-                        $("#rua").val(data.logradouro);
-                        $("#cidade").val(data.localidade);
-                        $("#estado").val(data.uf);
-                    } else {
-                        toastr.error('CEP não encontrado');
-                    }
-                }).fail(function() {
-                    toastr.error('Erro ao buscar CEP');
-                });
-            });
-            $("#formConcessionaria").on("submit", function() {
-                if ($(this).valid()) {
-                    $("#btnSalvar")
-                        .prop("disabled", true)
-                        .html('<i class="fas fa-spinner fa-spin mr-1"></i> Salvando...');
-                }
+        $("#buscarCep").click(function () {
+            var cep = $("#cep").val().replace(/\D/g, '');
+            if (cep.length !== 8) {
+                toastr.error('CEP inválido');
+                return;
+            }
+            $.getJSON(`/cep/Buscar?cep=${cep}`, function (data) {
+                $("#rua").val(data.logradouro || '');
+                $("#cidade").val(data.localidade || '');
+                $("#estado").val(data.uf || '');
+            }).fail(function (xhr) {                
+                try {
+                    var resp = JSON.parse(xhr.responseText);
+                    errorMessage = resp.Message || errorMessage;
+                } catch (e) { }
+                toastr.error(errorMessage);
             });
         });
-    </script>
+
+        $("#formConcessionaria").on("submit", function () {
+            if ($(this).valid()) {
+                $("#btnSalvar")
+                    .prop("disabled", true)
+                    .html('<i class="fas fa-spinner fa-spin mr-1"></i> Salvando...');
+            }
+        });
+    });
+</script>
 }

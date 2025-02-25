@@ -4,9 +4,9 @@ using GestaoDeConcessionaria.Domain.Interfaces;
 
 namespace GestaoDeConcessionaria.Application.Services
 {
-    public class VendaService(IRepositorio<Venda> repositorioVenda) : IVendaService
+    public class VendaService(IVendaRepository repositorioVenda) : IVendaService
     {
-        private readonly IRepositorio<Venda> _repositorioVenda = repositorioVenda;
+        private readonly IVendaRepository _repositorioVenda = repositorioVenda;
 
         public async Task<IEnumerable<Venda>> ObterTodosAsync()
         {
@@ -22,6 +22,11 @@ namespace GestaoDeConcessionaria.Application.Services
         {
             await _repositorioVenda.AdicionarAsync(venda);
             await _repositorioVenda.SalvarAsync();
+        }
+
+        public async Task<IEnumerable<Venda>> ObterTodasAsVendasAsync()
+        {
+            return await _repositorioVenda.ObterTodasAsVendasAsync();
         }
     }
 }

@@ -1,10 +1,6 @@
 ﻿@model IEnumerable<GestaoDeConcessionaria.Web.Models.VendaViewModel>
 @{
     ViewData["Title"] = "Vendas";
-
-    var veiculos = (IEnumerable<GestaoDeConcessionaria.Web.Models.VeiculoViewModel>)ViewBag.Veiculos;
-    var concessionarias = (IEnumerable<GestaoDeConcessionaria.Web.Models.ConcessionariaViewModel>)ViewBag.Concessionarias;
-    var clientes = (IEnumerable<GestaoDeConcessionaria.Web.Models.ClienteViewModel>)ViewBag.Clientes;
 }
 
 <section class="content-header">
@@ -66,18 +62,18 @@
                                 </td>
                                 <td>
                                     <i class="fas fa-car mr-1"></i>
-                                    @(veiculos?.FirstOrDefault(v => v.Id == item.VeiculoId)?.Modelo ?? "N/A")
+                                    @item.Modelo
                                     <small class="text-muted">
                                         (ID: @item.VeiculoId)
                                     </small>
                                 </td>
                                 <td>
                                     <i class="fas fa-building mr-1"></i>
-                                    @(concessionarias?.FirstOrDefault(c => c.Id == item.ConcessionariaId)?.Nome ?? "N/A")
+                                    @item.ConcessionariaNome
                                 </td>
                                 <td>
                                     <i class="fas fa-user mr-1"></i>
-                                    @(clientes?.FirstOrDefault(c => c.Id == item.ClienteId)?.Nome ?? "N/A")
+                                    @item.ClienteNome
                                 </td>
                                 <td class="text-center">
                                     <i class="fas fa-calendar mr-1"></i>

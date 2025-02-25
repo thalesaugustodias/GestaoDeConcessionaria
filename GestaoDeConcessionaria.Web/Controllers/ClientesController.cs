@@ -121,25 +121,11 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 }
             }
             return View(model);
-        }
+        }              
 
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var response = await _httpClient.GetAsync($"api/clientes/{id}");
-            if (response.IsSuccessStatusCode)
-            {
-                var jsonData = await response.Content.ReadAsStringAsync();
-                var cliente = JsonConvert.DeserializeObject<ClienteViewModel>(jsonData);
-                return View(cliente);
-            }
-            _toastNotification.AddErrorToastMessageCustom("Cliente não encontrado para exclusão.");
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             var response = await _httpClient.DeleteAsync($"api/clientes/{id}");
             if (response.IsSuccessStatusCode)

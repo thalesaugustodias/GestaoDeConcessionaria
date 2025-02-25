@@ -4,9 +4,9 @@ using GestaoDeConcessionaria.Domain.Interfaces;
 
 namespace GestaoDeConcessionaria.Application.Services
 {
-    public class VeiculoService(IRepositorio<Veiculo> repositorioVeiculo) : IVeiculoService
+    public class VeiculoService(IRepository<Veiculo> repositorioVeiculo) : IVeiculoService
     {
-        private readonly IRepositorio<Veiculo> _repositorioVeiculo = repositorioVeiculo;
+        private readonly IRepository<Veiculo> _repositorioVeiculo = repositorioVeiculo;
 
         public async Task<IEnumerable<Veiculo>> ObterTodosAsync()
         {
