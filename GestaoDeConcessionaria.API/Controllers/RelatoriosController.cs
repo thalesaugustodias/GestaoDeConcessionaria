@@ -6,7 +6,7 @@ namespace GestaoDeConcessionaria.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Gerente,Administrador")]
+    [Authorize(Roles = "Gerente,Administrador,Vendedor")]
     public class RelatoriosController(IRelatorioService relatorioService) : ControllerBase
     {
         private readonly IRelatorioService _relatorioService = relatorioService;

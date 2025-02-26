@@ -48,7 +48,7 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Criar([FromBody] VeiculoDTO dto)
+        public async Task<IActionResult> Criar([FromBody] VeiculoDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -71,7 +71,7 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Atualizar(int id, [FromBody] VeiculoDTO dto)
+        public async Task<IActionResult> Atualizar(int id, [FromBody] VeiculoDto dto)
         {
             try
             {

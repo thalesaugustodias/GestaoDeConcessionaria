@@ -16,6 +16,8 @@
     <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css" />
     <link rel="stylesheet" href="~/plugins/toastr/toastr.min.css" />
     <link rel="stylesheet" href="~/plugins/sweetalert2/sweetalert2.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
@@ -98,15 +100,6 @@
                                 <p>Clientes</p>
                             </a>
                         </li>
-                        @if (userRole == "Gerente")
-                        {
-                            <li class="nav-item">
-                                <a href="~/Dashboard/Index" class="nav-link">
-                                    <i class="nav-icon fas fa-chart-line"></i>
-                                    <p>Relatórios</p>
-                                </a>
-                            </li>
-                        }
                     </ul>
                 </nav>
             </div>
@@ -132,6 +125,7 @@
     <script src="~/plugins/chart.js/Chart.min.js"></script>
     <script src="~/plugins/toastr/toastr.min.js"></script>
     <script src="~/plugins/sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="~/plugins/select2/js/select2.min.js"></script>
     <script src="~/js/site.js"></script>
     <script>
         $(function () {

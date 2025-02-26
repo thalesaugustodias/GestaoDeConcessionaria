@@ -12,7 +12,7 @@ namespace GestaoDeConcessionaria.API.Controllers
         private readonly IUsuarioService _usuarioServico = usuarioServico;
 
         [HttpPost("registrar")]
-        public async Task<IActionResult> Registrar([FromBody] RegistrarUsuarioDTO request)
+        public async Task<IActionResult> Registrar([FromBody] RegistrarUsuarioDto request)
         {
             var usuario = new Usuario
             {
@@ -26,7 +26,7 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginUsuarioDTO request)
+        public async Task<IActionResult> Login([FromBody] LoginUsuarioDto request)
         {
             var token = await _usuarioServico.AutenticarAsync(request.NomeUsuario, request.Senha);
             return Ok(new { token });

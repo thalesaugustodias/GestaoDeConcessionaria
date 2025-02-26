@@ -6,13 +6,13 @@ namespace GestaoDeConcessionaria.Application.Factories
 {
     public static class ClienteFactory
     {
-        public static Cliente Criar(ClienteDTO dto)
+        public static Cliente Criar(ClienteDto dto)
         {
             string cpf = dto.CPF.SomenteDigitos();
             return new Cliente(dto.Nome, cpf, dto.Telefone);
         }
 
-        public static void Atualizar(Cliente entidade, ClienteDTO dto)
+        public static void Atualizar(Cliente entidade, ClienteDto dto)
         {
             string cpf = dto.CPF.SomenteDigitos();
             entidade.Atualizar(dto.Nome, cpf, dto.Telefone);

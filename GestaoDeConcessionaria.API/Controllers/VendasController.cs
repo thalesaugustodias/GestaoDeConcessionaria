@@ -26,8 +26,8 @@ namespace GestaoDeConcessionaria.API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ObterTodos()
         {
-            var cacheKey = "lista_vendas";
-            string jsonLista = await _cache.GetStringAsync(cacheKey);
+            const string cacheKey = "lista_vendas";
+            string? jsonLista = await _cache.GetStringAsync(cacheKey);
             if (!string.IsNullOrEmpty(jsonLista))
             {
                 var vendasCache = JsonSerializer.Deserialize<IEnumerable<Venda>>(jsonLista);
@@ -52,7 +52,7 @@ namespace GestaoDeConcessionaria.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Criar([FromBody] VendaDTO dto)
+        public async Task<IActionResult> Criar([FromBody] VendaDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

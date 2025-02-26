@@ -6,7 +6,7 @@ namespace GestaoDeConcessionaria.Application.Factories
 {
     public static class VeiculoFactory
     {
-        public static Veiculo Criar(VeiculoDTO dto, Fabricante fabricante)
+        public static Veiculo Criar(VeiculoDto dto, Fabricante fabricante)
         {
             if (!Enum.TryParse(dto.Tipo, true, out TipoVeiculo tipo))
                 throw new ArgumentException("Tipo de veículo inválido.");
@@ -14,7 +14,7 @@ namespace GestaoDeConcessionaria.Application.Factories
             return new Veiculo(dto.Modelo, dto.AnoFabricacao, dto.Preco, tipo, dto.Descricao, fabricante);
         }
 
-        public static void Atualizar(Veiculo entidade, VeiculoDTO dto, Fabricante fabricante)
+        public static void Atualizar(Veiculo entidade, VeiculoDto dto, Fabricante fabricante)
         {
             if (!Enum.TryParse(dto.Tipo, true, out TipoVeiculo tipo))
                 throw new ArgumentException("Tipo de veículo inválido.");

@@ -4,6 +4,6 @@ namespace GestaoDeConcessionaria.Application.Interfaces
 {
     public interface IRelatorioService
     {
-        Task<DashboardDTO> GerarRelatorioMensalAsync(int mes, int ano);
+        Task<DashboardDto> GerarRelatorioMensalAsync(int mes, int ano);
     }
 }
