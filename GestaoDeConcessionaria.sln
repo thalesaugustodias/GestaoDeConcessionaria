@@ -11,6 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestaoDeConcessionaria.Doma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GestaoDeConcessionaria.Application", "GestaoDeConcessionaria.Application\GestaoDeConcessionaria.Application.csproj", "{020841A7-4C24-4825-B85C-25D5001E6BA6}"
 	ProjectSection(ProjectDependencies) = postProject
+		{49D0613F-735B-4E2E-95D4-50CCDAD96046} = {49D0613F-735B-4E2E-95D4-50CCDAD96046}
 		{4AB6C6D6-4627-4664-A60B-287DC1A07A6C} = {4AB6C6D6-4627-4664-A60B-287DC1A07A6C}
 	EndProjectSection
 EndProject

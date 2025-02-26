@@ -14,5 +14,10 @@ namespace GestaoDeConcessionaria.Application.Factories
         {
             entidade.Atualizar(dto.Nome, dto.Rua, dto.Cidade, dto.Estado, dto.CEP, dto.Telefone, dto.Email, dto.CapacidadeMaximaVeiculos);
         }
+
+        public static List<ConcessionariaDto> CriacaoDeConcessionariaDto(IEnumerable<Concessionaria> concessionarias)
+        {
+            return concessionarias.Select(c => new ConcessionariaDto(c.Id, c.Nome, c.Rua, c.Cidade, c.Estado, c.CEP, c.Telefone, c.Email, c.CapacidadeMaximaVeiculos)).ToList();
+        }
     }
 }

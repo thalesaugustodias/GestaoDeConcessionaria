@@ -67,11 +67,9 @@
                                             var tipoTexto = item.Tipo.ToString().ToLower();
                                             var icon = tipoTexto switch
                                             {
-                                                "carro" => "car",
-                                                "moto" => "motorcycle",
-                                                "caminhão" => "truck",
-                                                "suv" => "truck-pickup",
-                                                "van" => "shuttle-van",
+                                                "Carro" => "car",
+                                                "Moto" => "motorcycle",
+                                                "Caminhao" => "truck",                                               
                                                 _ => "car-side"
                                             };
                                         }
@@ -88,7 +86,7 @@
                                 </td>
                                 <td class="text-right">
                                     <strong class="text-success">
-                                        @item.Preco.ToString("C")
+                                        @item.Preco?.ToString("C")
                                     </strong>
                                 </td>
                                 <td>
@@ -105,7 +103,7 @@
                                            class="btn btn-warning btn-sm" title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="javascript:void(0);" onclick="confirmarExclusao(@item.Id, '@item.Modelo', '@item.Preco.ToString("C")')"
+                                        <a href="javascript:void(0);" onclick="confirmarExclusao(@item.Id, '@item.Modelo', '@item.Preco?.ToString("C")')"
                                            class="btn btn-danger btn-sm" title="Excluir">
                                             <i class="fas fa-trash"></i>
                                         </a>

@@ -9,5 +9,9 @@ namespace GestaoDeConcessionaria.Application.Factories
         {
             return new Venda(veiculo, concessionaria, cliente, dto.DataVenda, dto.PrecoVenda);
         }
+        public static VendaDadosDeCriacaoDto DadosDeCriacao(IEnumerable<VeiculoDto> veiculos, IEnumerable<ConcessionariaDto> concessionarias, IEnumerable<ClienteDto> clientes)
+        {
+            return new VendaDadosDeCriacaoDto(veiculos, concessionarias, clientes);
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using GestaoDeConcessionaria.Application.DTOs;
 using GestaoDeConcessionaria.Application.Factories;
 using GestaoDeConcessionaria.Application.Interfaces;
+using GestaoDeConcessionaria.Application.Services;
 using GestaoDeConcessionaria.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,6 +50,23 @@ namespace GestaoDeConcessionaria.API.Controllers
             if (venda == null)
                 return NotFound();
             return Ok(venda);
+        }
+
+        [HttpGet("obter-dados-para-criacao")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ObterDadosParaCriacao()
+        {
+            var veiculos = await _servicoVeiculo.ObterTodosAsync();
+            var concessionarias = await _servicoConcessionaria.ObterTodosAsync();
+            var clientes = await _servicoCliente.ObterTodosAsync();
+
+            var veiculosDto = VeiculoFactory.CriacaoDeVeiculoDto(veiculos);
+            var concessionariasDto = ConcessionariaFactory.CriacaoDeConcessionariaDto(concessionarias);
+            var clientesDto = ClienteFactory.CriarClienteDto(clientes);
+
+            var dados = VendaFactory.DadosDeCriacao(veiculosDto, concessionariasDto, clientesDto);
+
+            return Ok(dados);
         }
 
         [HttpPost]

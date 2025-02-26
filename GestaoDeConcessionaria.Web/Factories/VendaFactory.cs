@@ -1,5 +1,5 @@
 ﻿using GestaoDeConcessionaria.Domain.Entities;
-using GestaoDeConcessionaria.Web.Models;
+using GestaoDeConcessionaria.Web.Models.Vendas;
 
 namespace GestaoDeConcessionaria.Web.Factories
 {

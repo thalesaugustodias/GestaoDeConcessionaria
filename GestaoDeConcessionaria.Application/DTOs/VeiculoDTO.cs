@@ -1,4 +1,6 @@
-﻿namespace GestaoDeConcessionaria.Application.DTOs
+﻿using GestaoDeConcessionaria.Domain.Enums;
+
+namespace GestaoDeConcessionaria.Application.DTOs
 {
-    public record VeiculoDto(string Modelo, int AnoFabricacao, decimal Preco, string Tipo, string Descricao, int FabricanteId);
+    public record VeiculoDto(int Id, string Modelo, int AnoFabricacao, decimal Preco, TipoVeiculo Tipo, string Descricao, int FabricanteId);
 }

@@ -59,7 +59,7 @@ namespace GestaoDeConcessionaria.API.Controllers
 
             try
             {
-                var veiculo = VeiculoFactory.Criar(dto, fabricante);
+                var veiculo = VeiculoFactory.CriarVeiculo(dto, fabricante);
                 await _servicoVeiculo.AdicionarAsync(veiculo);
                 await _cache.RemoveAsync("lista_veiculos");
                 return CreatedAtAction(nameof(ObterPorId), new { id = veiculo.Id }, veiculo);

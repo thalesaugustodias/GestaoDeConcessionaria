@@ -36,6 +36,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
+                            <!-- Modelo -->
                             <div class="form-group">
                                 <label asp-for="Modelo">
                                     <i class="fas fa-car-side mr-1"></i>
@@ -51,7 +52,7 @@
                                 </div>
                                 <span asp-validation-for="Modelo" class="text-danger"></span>
                             </div>
-
+                            <!-- Ano de Fabricação -->
                             <div class="form-group">
                                 <label asp-for="AnoFabricacao">
                                     <i class="fas fa-calendar mr-1"></i>
@@ -68,7 +69,7 @@
                                 </div>
                                 <span asp-validation-for="AnoFabricacao" class="text-danger"></span>
                             </div>
-
+                            <!-- Preço -->
                             <div class="form-group">
                                 <label asp-for="Preco">
                                     <i class="fas fa-tag mr-1"></i>
@@ -78,42 +79,37 @@
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">R$</span>
                                     </div>
-                                    <input asp-for="Preco" type="number" step="0.01" class="form-control money"
-                                           placeholder="0,00" />
+                                    <input asp-for="Preco" type="number" class="form-control money" placeholder="0.00" />
                                 </div>
                                 <span asp-validation-for="Preco" class="text-danger"></span>
                             </div>
                         </div>
 
                         <div class="col-md-6">
+                            <!-- Tipo -->
                             <div class="form-group">
                                 <label asp-for="Tipo">
                                     <i class="fas fa-truck mr-1"></i>
                                     Tipo de Veículo
                                 </label>
-                                <select asp-for="Tipo" class="form-control">
+                                <select asp-for="Tipo" class="form-control" asp-items="@(new SelectList(ViewBag.TiposVeiculos, "Value", "Text", Model.Tipo))">
                                     <option value="">Selecione o tipo...</option>
-                                    <option value="Carro">Carro</option>
-                                    <option value="Moto">Moto</option>
-                                    <option value="Caminhão">Caminhão</option>
-                                    <option value="SUV">SUV</option>
-                                    <option value="Van">Van</option>
                                 </select>
                                 <span asp-validation-for="Tipo" class="text-danger"></span>
                             </div>
-
+                            <!-- Fabricante -->
                             <div class="form-group">
                                 <label asp-for="FabricanteId">
                                     <i class="fas fa-industry mr-1"></i>
                                     Fabricante
                                 </label>
                                 <select asp-for="FabricanteId" class="form-control"
-                                        asp-items="@(new SelectList(ViewBag.Fabricantes, "Id", "Nome"))">
+                                        asp-items="@(new SelectList(ViewBag.Fabricantes, "Id", "Nome", Model.FabricanteId))">
                                     <option value="">Selecione o fabricante...</option>
                                 </select>
                                 <span asp-validation-for="FabricanteId" class="text-danger"></span>
                             </div>
-
+                            <!-- Descrição -->
                             <div class="form-group">
                                 <label asp-for="Descricao">
                                     <i class="fas fa-info-circle mr-1"></i>
@@ -147,17 +143,18 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        $(document).ready(function() {
-            $('.money').mask('#.##0,00', {reverse: true});
-            $("#AnoFabricacao").on("input", function() {
+        $(document).ready(function () {
+            $('.money').mask('0000000000.00', { reverse: true });
+
+            $("#AnoFabricacao").on("input", function () {
                 let value = $(this).val();
                 let currentYear = new Date().getFullYear();
-
                 if (value > currentYear) {
                     $(this).val(currentYear);
                 }
             });
-            $("#formVeiculo").on("submit", function() {
+
+            $("#formVeiculo").on("submit", function () {
                 if ($(this).valid()) {
                     $("#btnSalvar")
                         .prop("disabled", true)

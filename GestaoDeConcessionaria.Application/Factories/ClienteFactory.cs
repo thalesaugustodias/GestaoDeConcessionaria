@@ -17,5 +17,10 @@ namespace GestaoDeConcessionaria.Application.Factories
             string cpf = dto.CPF.SomenteDigitos();
             entidade.Atualizar(dto.Nome, cpf, dto.Telefone);
         }
+
+        public static List<ClienteDto> CriarClienteDto(IEnumerable<Cliente> clientes)
+        {
+            return clientes.Select(c => new ClienteDto(c.Id, c.Nome, c.CPF, c.Telefone)).ToList();
+        }
     }
 }

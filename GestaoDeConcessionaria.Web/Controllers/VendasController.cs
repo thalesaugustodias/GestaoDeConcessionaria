@@ -1,6 +1,7 @@
 ﻿using GestaoDeConcessionaria.Domain.Entities;
 using GestaoDeConcessionaria.Web.Extensions;
 using GestaoDeConcessionaria.Web.Models;
+using GestaoDeConcessionaria.Web.Models.Vendas;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NToastNotify;
@@ -14,6 +15,10 @@ namespace GestaoDeConcessionaria.Web.Controllers
     {
         private readonly HttpClient _httpClient = httpClientFactory.CreateClient("ApiClient");
         private readonly IToastNotification _toastNotification = toastNotification;
+        private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -22,26 +27,28 @@ namespace GestaoDeConcessionaria.Web.Controllers
             if (response.IsSuccessStatusCode)
             {
                 var jsonData = await response.Content.ReadAsStringAsync();
-                var vendasDomain = JsonSerializer.Deserialize<IEnumerable<Venda>>(jsonData, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-                var vendasViewModel = VendaViewModelFactory.Create(vendasDomain);
+                var vendasDomain = JsonSerializer.Deserialize<IEnumerable<Venda>>(jsonData, _jsonSerializerOptions);
+                var vendasViewModel = VendaViewModelFactory.Create(vendasDomain!);
                 return View(vendasViewModel);
             }
             _toastNotification.AddErrorToastMessageCustom("Erro ao carregar vendas.");
             return View(new List<VendaViewModel>());
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                _toastNotification.AddErrorToastMessageCustom("Dados inválidos.");
+                return RedirectToAction("Index");
+            }
+
             var response = await _httpClient.GetAsync($"api/vendas/{id}");
             if (response.IsSuccessStatusCode)
             {
                 var jsonData = await response.Content.ReadAsStringAsync();
-                var venda = JsonSerializer.Deserialize<VendaViewModel>(jsonData);
+                var venda = JsonSerializer.Deserialize<VendaDetalhesViewModel>(jsonData, _jsonSerializerOptions);
                 return View(venda);
             }
             _toastNotification.AddErrorToastMessageCustom("Venda não encontrada.");
@@ -51,28 +58,14 @@ namespace GestaoDeConcessionaria.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var veiculosResponse = await _httpClient.GetAsync("api/veiculos");
-            var concessionariasResponse = await _httpClient.GetAsync("api/concessionarias");
-            var clientesResponse = await _httpClient.GetAsync("api/clientes");
-
-            var options = new JsonSerializerOptions
+            var response = await _httpClient.GetAsync("api/vendas/obter-dados-para-criacao");
+            if (response.IsSuccessStatusCode)
             {
-                PropertyNameCaseInsensitive = true
-            };
-
-            if (veiculosResponse.IsSuccessStatusCode && concessionariasResponse.IsSuccessStatusCode && clientesResponse.IsSuccessStatusCode)
-            {
-                var veiculosJson = await veiculosResponse.Content.ReadAsStringAsync();
-                var concessionariasJson = await concessionariasResponse.Content.ReadAsStringAsync();
-                var clientesJson = await clientesResponse.Content.ReadAsStringAsync();
-
-                var veiculos = JsonSerializer.Deserialize<IEnumerable<VeiculoViewModel>>(veiculosJson, options);
-                var concessionarias = JsonSerializer.Deserialize<IEnumerable<ConcessionariaViewModel>>(concessionariasJson, options);
-                var clientes = JsonSerializer.Deserialize<IEnumerable<ClienteViewModel>>(clientesJson, options);
-
-                ViewBag.Veiculos = veiculos ?? [];
-                ViewBag.Concessionarias = concessionarias ?? [];
-                ViewBag.Clientes = clientes ?? [];
+                var jsonData = await response.Content.ReadAsStringAsync();
+                var dados = JsonSerializer.Deserialize<VendaCreateViewModel>(jsonData, _jsonSerializerOptions);
+                ViewBag.Veiculos = dados?.Veiculos ?? [];
+                ViewBag.Concessionarias = dados?.Concessionarias ?? [];
+                ViewBag.Clientes = dados?.Clientes ?? [];
             }
             else
             {
@@ -81,9 +74,9 @@ namespace GestaoDeConcessionaria.Web.Controllers
                 ViewBag.Clientes = new List<ClienteViewModel>();
             }
 
-            return View(new VendaViewModel());
+            var model = new VendaViewModel { DataVenda = DateTime.Today };
+            return View(model);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -91,7 +84,7 @@ namespace GestaoDeConcessionaria.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var content = new StringContent(JsonSerializer.Serialize(model), System.Text.Encoding.UTF8, "application/json");
+                var content = new StringContent(JsonSerializer.Serialize(model, _jsonSerializerOptions), System.Text.Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync("api/vendas", content);
                 if (response.IsSuccessStatusCode)
                 {
@@ -104,10 +97,15 @@ namespace GestaoDeConcessionaria.Web.Controllers
                     string errorMessage = "Erro ao criar venda.";
                     try
                     {
-                        var errorObj = JsonSerializer.Deserialize<dynamic>(jsonError);
+                        var errorObj = JsonSerializer.Deserialize<dynamic>(jsonError, _jsonSerializerOptions);
                         errorMessage = errorObj?.Message ?? errorMessage;
                     }
-                    catch { }
+                    catch (JsonException ex)
+                    {
+                        Console.WriteLine();
+                        _toastNotification.AddErrorToastMessageCustom($"JSON deserialization error: {ex.Message}");
+                    }
+
                     _toastNotification.AddErrorToastMessageCustom(errorMessage);
                     return RedirectToAction("Create");
                 }
