@@ -1,4 +1,4 @@
-# SGVC - Sistema de Gestão de Concessionárias de Veículos
+# SGCV - Sistema de Gestão de Concessionárias de Veículos
 
 Este projeto visa construir uma aplicação web para a gestão de concessionárias de veículos. O sistema é composto por duas partes:
 
@@ -28,7 +28,7 @@ Este projeto visa construir uma aplicação web para a gestão de concessionári
 
 ## Visão Geral
 
-O **SGVC** é um sistema completo para a gestão de concessionárias de veículos que oferece:
+O **SGCV** é um sistema completo para a gestão de concessionárias de veículos que oferece:
 
 - **Cadastro e Gerenciamento:** Permite o cadastro, edição, visualização e deleção lógica de fabricantes, veículos, concessionárias, clientes e vendas.
 - **Autenticação e Autorização:** Gerencia o acesso dos usuários (Administrador, Vendedor, Gerente) utilizando ASP.NET Identity e JWT.
@@ -141,5 +141,5 @@ O sistema contempla os seguintes casos de uso:
 
    ```bash
    git clone https://github.com/thalesaugustodias/gestaodeconcessionaria.git
-   cd sgvc
+   cd sgcv
    ```
