@@ -60,7 +60,7 @@ namespace GestaoDeConcessionaria.API.Controllers
             var concessionarias = await _servicoConcessionaria.ObterTodosAsync();
             var clientes = await _servicoCliente.ObterTodosAsync();
 
-            var veiculosDto = VeiculoFactory.CriacaoDeVeiculoDto(veiculos);
+            var veiculosDto = VeiculoFactory.CreateList(veiculos);
             var concessionariasDto = ConcessionariaFactory.CriacaoDeConcessionariaDto(concessionarias);
             var clientesDto = ClienteFactory.CriarClienteDto(clientes);
 

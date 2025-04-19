@@ -6,20 +6,52 @@ namespace GestaoDeConcessionaria.Application.Factories
 {
     public static class VeiculoFactory
     {
+        public static VeiculoDto Create(Veiculo v) =>
+            new()
+            {
+                Id = v.Id,
+                Modelo = v.Modelo,
+                AnoFabricacao = v.AnoFabricacao,
+                Preco = v.Preco,
+                Tipo = v.Tipo.ToString(),
+                Descricao = v.Descricao,
+                FabricanteId = v.FabricanteId,
+                NomeFabricante = v.Fabricante?.Nome ?? string.Empty,
+                Ativo = v.Ativo
+            };
+
         public static Veiculo CriarVeiculo(VeiculoDto dto, Fabricante fabricante)
         {
-            TipoVeiculo tipo = dto.Tipo;
-            return new Veiculo(dto.Modelo, dto.AnoFabricacao, dto.Preco, tipo, dto.Descricao, fabricante);
+            if (!Enum.TryParse<TipoVeiculo>(dto.Tipo, true, out var tipoEnum))
+                throw new ArgumentException($"TipoVeiculo inválido: {dto.Tipo}");
+
+            return new Veiculo(
+                modelo: dto.Modelo,
+                anoFabricacao: dto.AnoFabricacao,
+                preco: dto.Preco,
+                tipo: tipoEnum,
+                descricao: dto.Descricao,
+                fabricante: fabricante
+            );
         }
 
         public static void Atualizar(Veiculo entidade, VeiculoDto dto, Fabricante fabricante)
         {
-            entidade.Atualizar(dto.Modelo, dto.AnoFabricacao, dto.Preco, dto.Tipo, dto.Descricao, fabricante);
+            if (!Enum.TryParse<TipoVeiculo>(dto.Tipo, true, out var tipoEnum))
+                throw new ArgumentException($"TipoVeiculo inválido: {dto.Tipo}");
+
+            entidade.Atualizar(
+                modelo: dto.Modelo,
+                anoFabricacao: dto.AnoFabricacao,
+                preco: dto.Preco,
+                tipo: tipoEnum,
+                descricao: dto.Descricao,
+                fabricante: fabricante
+            );
         }
 
-        public static List<VeiculoDto> CriacaoDeVeiculoDto(IEnumerable<Veiculo> veiculos)
-        {
-            return veiculos.Select(v => new VeiculoDto(v.Id, v.Modelo, v.AnoFabricacao, v.Preco, v.Tipo, v.Descricao, v.FabricanteId)).ToList();
-        }
+        public static IEnumerable<VeiculoDto> CreateList(IEnumerable<Veiculo> veiculos) =>
+            veiculos.Select(Create);
     }
+
 }

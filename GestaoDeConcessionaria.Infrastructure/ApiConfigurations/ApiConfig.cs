@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
 {
@@ -16,11 +16,12 @@ namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
         public static IServiceCollection AddApiConfig(this IServiceCollection services)
         {
             services.AddControllers()
-            .AddJsonOptions(options =>
+            .AddJsonOptions(opts =>
             {
-                options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                opts.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+                opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
-
 
             services.AddHttpContextAccessor();
 
@@ -32,11 +33,23 @@ namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
 
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowVueDev", policy =>
+                {
+                    policy
+                        .WithOrigins("http://localhost:54960")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
+
             return services;
         }
 
         public static IApplicationBuilder UseApiConfig(this IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseCors("AllowVueDev");
             app.UseExceptionHandler(errorApp =>
             {
                 errorApp.Run(async context =>

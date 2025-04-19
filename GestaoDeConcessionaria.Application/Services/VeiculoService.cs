@@ -4,38 +4,40 @@ using GestaoDeConcessionaria.Domain.Interfaces;
 
 namespace GestaoDeConcessionaria.Application.Services
 {
-    public class VeiculoService(IRepository<Veiculo> repositorioVeiculo) : IVeiculoService
+    public class VeiculoService(IVeiculoRepository repositorioVeiculo, IRepository<Veiculo> repository) : IVeiculoService
     {
-        private readonly IRepository<Veiculo> _repositorioVeiculo = repositorioVeiculo;
+        private readonly IRepository<Veiculo> _repository = repository;
+        private readonly IVeiculoRepository _repositorioVeiculo = repositorioVeiculo;
 
         public async Task<IEnumerable<Veiculo>> ObterTodosAsync()
         {
-            return await _repositorioVeiculo.ObterTodosAsync();
+            return await _repositorioVeiculo.ObterTodosOsVeiculosAsync();
         }
 
         public async Task<Veiculo> ObterPorIdAsync(int id)
         {
-            return await _repositorioVeiculo.ObterPorIdAsync(id);
+            var veiculo = await _repositorioVeiculo.ObterVeiculosPorIdAsync(id);
+            return veiculo ?? throw new ArgumentNullException(nameof(id), "Veículo não encontrado.");
         }
 
         public async Task AdicionarAsync(Veiculo veiculo)
         {
-            await _repositorioVeiculo.AdicionarAsync(veiculo);
-            await _repositorioVeiculo.SalvarAsync();
+            await _repository.AdicionarAsync(veiculo);
+            await _repository.SalvarAsync();
         }
 
         public async Task AtualizarAsync(Veiculo veiculo)
         {
-            await _repositorioVeiculo.AtualizarAsync(veiculo);
-            await _repositorioVeiculo.SalvarAsync();
+            await _repository.AtualizarAsync(veiculo);
+            await _repository.SalvarAsync();
         }
 
         public async Task DeletarAsync(int id)
         {
-            var veiculo = await _repositorioVeiculo.ObterPorIdAsync(id) ?? throw new Exception("Veículo não encontrado.");
+            var veiculo = await _repository.ObterPorIdAsync(id) ?? throw new Exception("Veículo não encontrado.");
             veiculo.Deletar();
-            await _repositorioVeiculo.AtualizarAsync(veiculo);
-            await _repositorioVeiculo.SalvarAsync();
+            await _repository.AtualizarAsync(veiculo);
+            await _repository.SalvarAsync();
         }
     }
 }
