@@ -62,60 +62,109 @@
 </template>
 
 <script lang="ts">
-import { reactive, ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import api from '@/services/api';
-import { useServerValidation } from '@/composables/useServerValidation';
-import { notifySuccess, notifyError } from '@/services/notificationService';
+  import { reactive, ref, onMounted } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import api from '@/services/api';
+  import { useServerValidation } from '@/composables/useServerValidation';
+  import { notifySuccess, notifyError, notifyWarning } from '@/services/notificationService';
 
-export default {
-  name: 'Form',
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const id = route.params.id as string | undefined;
-    const editing = !!id;
-    const loading = ref(false);
-    const m = reactive<any>({ nome: '', cpf: '', telefone: '' });
-    const { errors, clearErrors, handleError } = useServerValidation();
+  export default {
+    name: 'ClienteForm',
+    setup() {
+      const route = useRoute();
+      const router = useRouter();
+      const id = route.params.id as string | undefined;
+      const editing = !!id;
+      const loading = ref(false);
+      const m = reactive<any>({ nome: '', cpf: '', telefone: '' });
+      const { errors, clearErrors, handleError } = useServerValidation();
 
-    onMounted(async () => {
-      if (editing) {
+      const validateForm = (): boolean => {
+        if (!m.nome || m.nome.trim() === '') {
+          notifyWarning('O nome do cliente é obrigatório');
+          return false;
+        }
+
+        const cpfLimpo = m.cpf.replace(/\D/g, '');
+        if (!cpfLimpo || cpfLimpo.length !== 11) {
+          notifyWarning('CPF deve conter 11 dígitos');
+          return false;
+        }
+
+        const telefoneLimpo = m.telefone.replace(/\D/g, '');
+        if (!telefoneLimpo || telefoneLimpo.length < 10) {
+          notifyWarning('Telefone inválido');
+          return false;
+        }
+
+        return true;
+      };
+
+      onMounted(async () => {
+        if (editing) {
+          loading.value = true;
+          try {
+            const { data } = await api.get(`/clientes/${id}`);
+            Object.assign(m, data);
+          } catch (error: any) {
+
+            if (error.response && error.response.data && error.response.data.message) {
+              notifyError(error.response.data.message);
+            } else {
+              notifyError('Erro ao carregar dados do cliente');
+            }
+            handleError(error);
+          } finally {
+            loading.value = false;
+          }
+        }
+      });
+
+      const submit = async () => {
+        clearErrors();
+
+        if (!validateForm()) {
+          return;
+        }
+
         loading.value = true;
+
         try {
-          const { data } = await api.get(`/clientes/${id}`);
-          Object.assign(m, data);
-        } catch (error) {
-          notifyError('Erro ao carregar dados do cliente');
+          if (editing) {
+            await api.put(`/clientes/${id}`, m);
+            notifySuccess('Cliente atualizado com sucesso!');
+          } else {
+            await api.post('/clientes', m);
+            notifySuccess('Cliente cadastrado com sucesso!');
+          }
+          router.push('/clientes');
+        } catch (error: any) {
+
+          if (error.response && error.response.data && error.response.data.message) {
+            notifyError(error.response.data.message);
+          } else if (error.response && error.response.status === 400) {
+
+            if (error.response.data.errors) {
+
+              const errorMessages = Object.values(error.response.data.errors).flat();
+              if (errorMessages.length > 0) {
+                notifyError(errorMessages[0] as string);
+              } else {
+                notifyError('Dados inválidos. Verifique os campos e tente novamente.');
+              }
+            } else {
+              notifyError('Dados inválidos. Verifique os campos e tente novamente.');
+            }
+          } else {
+            notifyError('Erro ao salvar cliente. Verifique sua conexão e tente novamente.');
+          }
           handleError(error);
         } finally {
           loading.value = false;
         }
-      }
-    });
+      };
 
-    const submit = async () => {
-      clearErrors();
-      loading.value = true;
-
-      try {
-        if (editing) {
-          await api.put(`/clientes/${id}`, m);
-          notifySuccess('Cliente atualizado com sucesso!');
-        } else {
-          await api.post('/clientes', m);
-          notifySuccess('Cliente cadastrado com sucesso!');
-        }
-        router.push('/clientes');
-      } catch (error) {
-        notifyError('Erro ao salvar cliente');
-        handleError(error);
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    return { m, editing, submit, errors, loading };
-  }
-};
+      return { m, editing, submit, errors, loading };
+    }
+  };
 </script>

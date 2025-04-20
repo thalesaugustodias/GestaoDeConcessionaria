@@ -12,6 +12,10 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
+    "@coreui/coreui": "^5.2.0",
+    "@coreui/icons": "^3.0.1",
+    "@coreui/icons-vue": "^2.2.0",
+    "@coreui/vue": "^5.4.1",
     "axios": "^1.8.4",
     "chart.js": "^4.4.9",
     "sweetalert2": "^11.19.1",

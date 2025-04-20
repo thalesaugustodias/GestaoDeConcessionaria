@@ -78,59 +78,109 @@
 </template>
 
 <script lang="ts">
-import { reactive, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import api from '@/services/api'
-import { useServerValidation } from '@/composables/useServerValidation'
-import { notifySuccess, notifyError } from '@/services/notificationService'
+  import { reactive, ref, onMounted } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
+  import api from '@/services/api'
+  import { useServerValidation } from '@/composables/useServerValidation'
+  import { notifySuccess, notifyError, notifyWarning } from '@/services/notificationService'
 
-export default {
-  name: 'Form',
-  setup() {
-    const route = useRoute()
-    const router = useRouter()
-    const id = route.params.id as string | undefined
-    const isEditing = Boolean(id)
-    const model = reactive({
-      nome: '',
-      paisOrigem: '',
-      anoFundacao: new Date().getFullYear(),
-      website: ''
-    })
+  export default {
+    name: 'FabricanteForm',
+    setup() {
+      const route = useRoute()
+      const router = useRouter()
+      const id = route.params.id as string | undefined
+      const isEditing = Boolean(id)
+      const loading = ref(false)
 
-    const { errors, clearErrors, handleError } = useServerValidation()
+      const model = reactive({
+        nome: '',
+        paisOrigem: '',
+        anoFundacao: new Date().getFullYear(),
+        website: ''
+      })
 
-    onMounted(async () => {
-      if (isEditing && id) {
-        clearErrors()
-        try {
-          const resp = await api.get(`/fabricantes/${id}`)
-          Object.assign(model, resp.data)
-        } catch (err) {
-          notifyError('Erro ao carregar dados do fabricante')
-          handleError(err)
+      const { errors, clearErrors, handleError } = useServerValidation()
+
+      const validateForm = (): boolean => {
+        if (!model.nome || model.nome.trim() === '') {
+          notifyWarning('O nome do fabricante é obrigatório')
+          return false
         }
-      }
-    })
 
-    const submit = async () => {
-      clearErrors()
-      try {
+        if (!model.paisOrigem || model.paisOrigem.trim() === '') {
+          notifyWarning('O país de origem é obrigatório')
+          return false
+        }
+
+        if (!model.anoFundacao || model.anoFundacao < 1800 || model.anoFundacao > 9999) {
+          notifyWarning('O ano de fundação deve estar entre 1800 e 9999')
+          return false
+        }
+
+        if (model.website && !model.website.match(/^https?:\/\/.+\..+/)) {
+          notifyWarning('O website deve ser uma URL válida (ex: https://www.exemplo.com)')
+          return false
+        }
+
+        return true
+      }
+
+      onMounted(async () => {
         if (isEditing && id) {
-          await api.put(`/fabricantes/${id}`, model)
-          notifySuccess('Fabricante atualizado com sucesso!')
-        } else {
-          await api.post('/fabricantes', model)
-          notifySuccess('Fabricante cadastrado com sucesso!')
-        }
-        router.push('/fabricantes')
-      } catch (err) {
-        notifyError('Erro ao salvar fabricante')
-        handleError(err)
-      }
-    }
+          loading.value = true
+          clearErrors()
+          try {
+            const resp = await api.get(`/fabricantes/${id}`)
+            Object.assign(model, resp.data)
+          } catch (err: any) {
 
-    return { model, isEditing, submit, errors }
+            if (err.response && err.response.data && err.response.data.message) {
+              notifyError(err.response.data.message)
+            } else {
+              notifyError('Erro ao carregar dados do fabricante')
+            }
+            handleError(err)
+          } finally {
+            loading.value = false
+          }
+        }
+      })
+
+      const submit = async () => {
+        clearErrors()
+
+        if (!validateForm()) {
+          return
+        }
+
+        loading.value = true
+
+        try {
+          if (isEditing && id) {
+            await api.put(`/fabricantes/${id}`, model)
+            notifySuccess('Fabricante atualizado com sucesso!')
+          } else {
+            await api.post('/fabricantes', model)
+            notifySuccess('Fabricante cadastrado com sucesso!')
+          }
+          router.push('/fabricantes')
+        } catch (err: any) {
+
+          if (err.response && err.response.data && err.response.data.message) {
+            notifyError(err.response.data.message)
+          } else if (err.response && err.response.status === 400) {
+            notifyError('Dados inválidos. Verifique os campos e tente novamente.')
+          } else {
+            notifyError('Erro ao salvar fabricante. Verifique sua conexão e tente novamente.')
+          }
+          handleError(err)
+        } finally {
+          loading.value = false
+        }
+      }
+
+      return { model, isEditing, submit, errors, loading }
+    }
   }
-}
 </script>

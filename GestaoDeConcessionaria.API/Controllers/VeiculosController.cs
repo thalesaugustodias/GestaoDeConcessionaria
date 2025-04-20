@@ -43,8 +43,9 @@ namespace GestaoDeConcessionaria.API.Controllers
             var dtos = VeiculoFactory.CreateList(raw);
             return Ok(dtos);
         }
-
+        
         [HttpGet("{id:int}")]
+        [AllowAnonymous]
         public async Task<ActionResult<VeiculoDto>> ObterPorId(int id)
         {
             var v = await _servicoVeiculo.ObterPorIdAsync(id);

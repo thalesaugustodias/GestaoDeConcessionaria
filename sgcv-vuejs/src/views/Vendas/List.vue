@@ -57,9 +57,9 @@
                 <tbody>
                   <tr v-for="v in filteredItems" :key="v.id">
                     <td>{{ v.id }}</td>
-                    <td>{{ v.veiculoModelo }}</td>
-                    <td>{{ v.concessionariaNome }}</td>
-                    <td>{{ v.clienteNome }}</td>
+                    <td>{{ v.veiculo.modelo }}</td>
+                    <td>{{ v.concessionaria.nome }}</td>
+                    <td>{{ v.cliente.nome }}</td>
                     <td>{{ formatDate(v.dataVenda) }}</td>
                     <td>{{ formatCurrency(v.precoVenda) }}</td>
                     <td>

@@ -115,70 +115,122 @@
 </template>
 
 <script lang="ts">
-import { reactive, ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import api from '@/services/api';
-import { useServerValidation } from '@/composables/useServerValidation';
-import { notifySuccess, notifyError } from '@/services/notificationService';
+  import { reactive, ref, onMounted } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import api from '@/services/api';
+  import { useServerValidation } from '@/composables/useServerValidation';
+  import { notifySuccess, notifyError, notifyWarning } from '@/services/notificationService';
 
-export default {
-  name: 'Form',
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const id = route.params.id as string|undefined;
-    const editing = !!id;
-    const loading = ref(false);
-    const m = reactive<any>({
-      modelo: '',
-      anoFabricacao: new Date().getFullYear(),
-      preco: 0,
-      tipo: '',
-      fabricanteId: '',
-      descricao: ''
-    });
-    const fabricantes = ref<any[]>([]);
-    const { errors, clearErrors, handleError } = useServerValidation();
+  export default {
+    name: 'Form',
+    setup() {
+      const route = useRoute();
+      const router = useRouter();
+      const id = route.params.id as string | undefined;
+      const editing = !!id;
+      const loading = ref(false);
+      const m = reactive<any>({
+        modelo: '',
+        anoFabricacao: new Date().getFullYear(),
+        preco: 0,
+        tipo: '',
+        fabricanteId: '',
+        descricao: ''
+      });
+      const fabricantes = ref<any[]>([]);
+      const { errors, clearErrors, handleError } = useServerValidation();
 
-    onMounted(async () => {
-      try {
-        // Carregar fabricantes
-        const { data } = await api.get('/fabricantes');
-        fabricantes.value = data;
+      onMounted(async () => {
+        try {
 
-        // Se estiver editando, carregar dados do veículo
-        if (editing) {
-          const veiculoResp = await api.get(`/veiculos/${id}`);
-          Object.assign(m, veiculoResp.data);
+          const { data } = await api.get('/fabricantes');
+          fabricantes.value = data;
+
+          if (editing) {
+            const veiculoResp = await api.get(`/veiculos/${id}`);
+            Object.assign(m, veiculoResp.data);
+          }
+        } catch (error: any) {
+
+          if (error.response && error.response.data && error.response.data.message) {
+            notifyError(error.response.data.message);
+          } else {
+            notifyError('Erro ao carregar dados iniciais');
+          }
+          console.error(error);
         }
-      } catch (error) {
-        notifyError('Erro ao carregar dados iniciais');
-        console.error(error);
-      }
-    });
+      });
 
-    const submit = async () => {
-      clearErrors();
-      loading.value = true;
-
-      try {
-        if (editing) {
-          await api.put(`/veiculos/${id}`, m);
-          notifySuccess('Veículo atualizado com sucesso!');
-        } else {
-          await api.post('/veiculos', m);
-          notifySuccess('Veículo cadastrado com sucesso!');
+      const validateForm = (): boolean => {
+        if (!m.modelo || m.modelo.trim() === '') {
+          notifyWarning('O modelo do veículo é obrigatório');
+          return false;
         }
-        router.push('/veiculos');
-      } catch (error) {
-        notifyError('Erro ao salvar veículo');
-        handleError(error);
-      } finally {
-        loading.value = false;
-      }
-    };
 
-    return { m, fabricantes, editing, submit, errors, loading };
-  }
-};
+        if (!m.anoFabricacao || m.anoFabricacao < 1900 || m.anoFabricacao > 2100) {
+          notifyWarning('O ano de fabricação deve estar entre 1900 e 2100');
+          return false;
+        }
+
+        if (m.preco <= 0) {
+          notifyWarning('O preço deve ser maior que zero');
+          return false;
+        }
+
+        if (!m.tipo || m.tipo.trim() === '') {
+          notifyWarning('Selecione um tipo de veículo');
+          return false;
+        }
+
+        if (!m.fabricanteId) {
+          notifyWarning('Selecione um fabricante');
+          return false;
+        }
+
+        return true;
+      };
+
+      const submit = async () => {
+        clearErrors();
+
+        if (!validateForm()) {
+          return;
+        }
+
+        loading.value = true;
+
+        try {
+          if (editing) {
+            await api.put(`/veiculos/${id}`, m);
+            notifySuccess('Veículo atualizado com sucesso!');
+          } else {
+            await api.post('/veiculos', m);
+            notifySuccess('Veículo cadastrado com sucesso!');
+          }
+          router.push('/veiculos');
+        } catch (error: any) {
+
+          if (error.response && error.response.data && error.response.data.message) {
+            notifyError(error.response.data.message);
+          } else if (error.response && error.response.status === 400) {
+            notifyError('Dados inválidos. Verifique os campos e tente novamente.');
+          } else {
+            notifyError('Erro ao salvar veículo. Verifique sua conexão e tente novamente.');
+          }
+          handleError(error);
+        } finally {
+          loading.value = false;
+        }
+      };
+
+      return {
+        m,
+        fabricantes,
+        editing,
+        submit,
+        errors,
+        loading
+      };
+    }
+  };
 </script>

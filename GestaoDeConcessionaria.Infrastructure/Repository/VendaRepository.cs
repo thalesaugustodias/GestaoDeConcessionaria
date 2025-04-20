@@ -19,5 +19,17 @@ namespace GestaoDeConcessionaria.Infrastructure.Repository
                 .Where(v => EF.Property<bool>(v, "Ativo") == true)
                 .ToListAsync();
         }
+
+        public Venda? ObterVendasPorIdAsync(int id)
+        {
+            return  _contexto.Vendas
+                .AsNoTracking()
+                .Include(v => v.Veiculo)
+                    .ThenInclude(v => v.Fabricante)
+                .Include(v => v.Concessionaria)
+                .Include(v => v.Cliente)
+                .Where(v => EF.Property<bool>(v, "Ativo") && v.Id == id)
+                .FirstOrDefault();
+        }
     }
 }

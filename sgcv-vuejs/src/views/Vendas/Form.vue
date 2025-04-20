@@ -118,104 +118,135 @@
 </template>
 
 <script lang="ts">
-import { reactive, ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import api from '@/services/api';
-import { useServerValidation } from '@/composables/useServerValidation';
-import { notifySuccess, notifyError } from '@/services/notificationService';
+  import { reactive, ref, onMounted, computed } from 'vue';
+  import { useRouter } from 'vue-router';
+  import api from '@/services/api';
+  import { useServerValidation } from '@/composables/useServerValidation';
+  import { notifySuccess, notifyError, notifyWarning } from '@/services/notificationService';
 
-export default {
-  name: 'Form',
-  setup() {
-    const router = useRouter();
-    const loading = ref(false);
-    const precoOriginal = ref(0);
-    const m = reactive<any>({
-      veiculoId: '',
-      concessionariaId: '',
-      clienteId: '',
-      dataVenda: new Date().toISOString().substr(0, 10),
-      precoVenda: 0
-    });
+  export default {
+    name: 'Form',
+    setup() {
+      const router = useRouter();
+      const loading = ref(false);
+      const precoOriginal = ref(0);
+      const m = reactive<any>({
+        veiculoId: '',
+        concessionariaId: '',
+        clienteId: '',
+        dataVenda: new Date().toISOString().substr(0, 10),
+        precoVenda: 0
+      });
 
-    const veiculos = ref<any[]>([]);
-    const concessionarias = ref<any[]>([]);
-    const clientes = ref<any[]>([]);
-    const { errors, clearErrors, handleError } = useServerValidation();
+      const veiculos = ref<any[]>([]);
+      const concessionarias = ref<any[]>([]);
+      const clientes = ref<any[]>([]);
+      const { errors, clearErrors, handleError } = useServerValidation();
 
-    const formatCurrency = (valor: number): string => {
-      return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      }).format(valor);
-    };
+      const formatCurrency = (valor: number): string => {
+        return new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        }).format(valor);
+      };
 
-    const descontoInfo = computed(() => {
-      if (precoOriginal.value > 0 && m.precoVenda < precoOriginal.value) {
-        const desconto = precoOriginal.value - m.precoVenda;
-        const percentual = (desconto / precoOriginal.value) * 100;
-        return `Desconto aplicado: ${formatCurrency(desconto)} (${percentual.toFixed(2)}%)`;
-      }
-      return '';
-    });
+      const descontoInfo = computed(() => {
+        if (precoOriginal.value > 0 && m.precoVenda < precoOriginal.value) {
+          const desconto = precoOriginal.value - m.precoVenda;
+          const percentual = (desconto / precoOriginal.value) * 100;
+          return `Desconto aplicado: ${formatCurrency(desconto)} (${percentual.toFixed(2)}%)`;
+        }
+        return '';
+      });
 
-    const fetchPreco = async () => {
-      if (m.veiculoId) {
+      const fetchPreco = async () => {
+        if (m.veiculoId) {
+          try {
+            const { data } = await api.get(`/veiculos/${m.veiculoId}`);
+            m.precoVenda = data.preco;
+            precoOriginal.value = data.preco;
+          } catch (error: any) {
+
+            if (error.response && error.response.data && error.response.data.message) {
+              notifyError(error.response.data.message);
+            } else {
+              notifyError('Erro ao buscar preço do veículo');
+            }
+            console.error(error);
+          }
+        }
+      };
+
+      onMounted(async () => {
         try {
-          const { data } = await api.get(`/veiculos/${m.veiculoId}`);
-          m.precoVenda = data.preco;
-          precoOriginal.value = data.preco;
-        } catch (error) {
-          notifyError('Erro ao buscar preço do veículo');
+          const [{ data: v }, { data: con }, { data: cli }] = await Promise.all([
+            api.get('/vendas/obter-dados-para-criacao'),
+            api.get('/concessionarias'),
+            api.get('/clientes')
+          ]);
+          veiculos.value = v.veiculos;
+          concessionarias.value = con;
+          clientes.value = cli;
+        } catch (error: any) {
+          if (error.response && error.response.data && error.response.data.message) {
+            notifyError(error.response.data.message);
+          } else {
+            notifyError('Erro ao carregar dados iniciais');
+          }
           console.error(error);
         }
-      }
-    };
+      });
 
-    onMounted(async () => {
-      try {
-        const [{ data: v }, { data: con }, { data: cli }] = await Promise.all([
-          api.get('/vendas/obter-dados-para-criacao'),
-          api.get('/concessionarias'),
-          api.get('/clientes')
-        ]);
-        veiculos.value = v.veiculos;
-        concessionarias.value = con;
-        clientes.value = cli;
-      } catch (error) {
-        notifyError('Erro ao carregar dados iniciais');
-        console.error(error);
-      }
-    });
+      const submit = async () => {
+        clearErrors();
+        loading.value = true;
 
-    const submit = async () => {
-      clearErrors();
-      loading.value = true;
+        if (m.veiculoId === '') {
+          notifyWarning('Selecione um veículo');
+          loading.value = false;
+          return;
+        }
 
-      try {
-        await api.post('/vendas', m);
-        notifySuccess('Venda registrada com sucesso!');
-        router.push('/vendas');
-      } catch (error) {
-        notifyError('Erro ao registrar venda');
-        handleError(error);
-      } finally {
-        loading.value = false;
-      }
-    };
+        if (m.concessionariaId === '') {
+          notifyWarning('Selecione uma concessionária');
+          loading.value = false;
+          return;
+        }
 
-    return {
-      m,
-      veiculos,
-      concessionarias,
-      clientes,
-      fetchPreco,
-      submit,
-      errors,
-      loading,
-      formatCurrency,
-      descontoInfo
-    };
-  }
-};
+        if (m.clienteId === '') {
+          notifyWarning('Selecione um cliente');
+          loading.value = false;
+          return;
+        }
+
+        try {
+          await api.post('/vendas', m);
+          notifySuccess('Venda registrada com sucesso!');
+          router.push('/vendas');
+        } catch (error: any) {
+          if (error.response && error.response.data && error.response.data.message) {
+            notifyError(error.response.data.message);
+          } else {
+            notifyError('Erro ao registrar venda. Verifique os dados e tente novamente.');
+          }
+          handleError(error);
+        } finally {
+          loading.value = false;
+        }
+      };
+
+      return {
+        m,
+        veiculos,
+        concessionarias,
+        clientes,
+        fetchPreco,
+        submit,
+        errors,
+        loading,
+        formatCurrency,
+        descontoInfo
+      };
+    }
+  };
 </script>

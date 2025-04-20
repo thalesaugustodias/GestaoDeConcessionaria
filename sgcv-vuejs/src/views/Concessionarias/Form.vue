@@ -109,106 +109,170 @@
 </template>
 
 <script lang="ts">
-import { reactive, ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import api from '@/services/api';
-import { useServerValidation } from '@/composables/useServerValidation';
-import { notifySuccess, notifyError, notifyWarning } from '@/services/notificationService';
-import { buscarCep as buscarCepService } from '@/services/cepService';
+  import { reactive, ref, onMounted } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import api from '@/services/api';
+  import { useServerValidation } from '@/composables/useServerValidation';
+  import { notifySuccess, notifyError, notifyWarning } from '@/services/notificationService';
+  import { buscarCep as buscarCepService } from '@/services/cepService';
 
-export default {
-  name: 'Form',
-  setup() {
-    const route = useRoute();
-    const router = useRouter();
-    const id = route.params.id as string|undefined;
-    const editing = !!id;
-    const loading = ref(false);
-    const cepLoading = ref(false);
+  export default {
+    name: 'ConcessionariaForm',
+    setup() {
+      const route = useRoute();
+      const router = useRouter();
+      const id = route.params.id as string | undefined;
+      const editing = !!id;
+      const loading = ref(false);
+      const cepLoading = ref(false);
 
-    const m = reactive<any>({
-      nome: '',
-      cep: '',
-      rua: '',
-      cidade: '',
-      estado: '',
-      telefone: '',
-      email: '',
-      capacidadeMaximaVeiculos: 1
-    });
+      const m = reactive<any>({
+        nome: '',
+        cep: '',
+        rua: '',
+        cidade: '',
+        estado: '',
+        telefone: '',
+        email: '',
+        capacidadeMaximaVeiculos: 1
+      });
 
-    const { errors, clearErrors, handleError } = useServerValidation();
+      const { errors, clearErrors, handleError } = useServerValidation();
 
-    const buscarCep = async () => {
-      if (!m.cep || m.cep.replace(/\D/g, '').length < 8) {
-        notifyWarning('Digite um CEP completo para buscar');
-        return;
-      }
-
-      cepLoading.value = true;
-
-      try {
-        const cepData = await buscarCepService(m.cep);
-        m.rua = cepData.logradouro;
-        m.cidade = cepData.localidade;
-        m.estado = cepData.uf;
-        notifySuccess('Endereço preenchido com sucesso!');
-      } catch (error: any) {
-        if (error.response && error.response.status === 400) {
-          notifyError('CEP não encontrado ou inválido');
-        } else {
-          notifyError('Erro ao buscar CEP: ' + (error.message || 'Verifique sua conexão'));
+      const validateForm = (): boolean => {
+        if (!m.nome || m.nome.trim() === '') {
+          notifyWarning('O nome da concessionária é obrigatório');
+          return false;
         }
-      } finally {
-        cepLoading.value = false;
-      }
-    };
 
-    onMounted(async () => {
-      if (editing) {
-        loading.value = true;
+        if (!m.cep || m.cep.replace(/\D/g, '').length !== 8) {
+          notifyWarning('Digite um CEP válido com 8 dígitos');
+          return false;
+        }
+
+        if (!m.rua || m.rua.trim() === '') {
+          notifyWarning('O endereço (rua) é obrigatório');
+          return false;
+        }
+
+        if (!m.cidade || m.cidade.trim() === '') {
+          notifyWarning('A cidade é obrigatória');
+          return false;
+        }
+
+        if (!m.estado || m.estado.trim() === '') {
+          notifyWarning('O estado é obrigatório');
+          return false;
+        }
+
+        if (!m.telefone || m.telefone.replace(/\D/g, '').length < 10) {
+          notifyWarning('Digite um telefone válido');
+          return false;
+        }
+
+        if (m.email && !m.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+          notifyWarning('Digite um email válido');
+          return false;
+        }
+
+        if (m.capacidadeMaximaVeiculos < 1) {
+          notifyWarning('A capacidade máxima de veículos deve ser maior que zero');
+          return false;
+        }
+
+        return true;
+      };
+
+      const buscarCep = async () => {
+        if (!m.cep || m.cep.replace(/\D/g, '').length < 8) {
+          notifyWarning('Digite um CEP completo para buscar');
+          return;
+        }
+
+        cepLoading.value = true;
+
         try {
-          const { data } = await api.get(`/concessionarias/${id}`);
-          Object.assign(m, data);
-        } catch (error) {
-          notifyError('Erro ao carregar dados da concessionária');
+          const cepData = await buscarCepService(m.cep);
+          m.rua = cepData.logradouro;
+          m.cidade = cepData.localidade;
+          m.estado = cepData.uf;
+          notifySuccess('Endereço preenchido com sucesso!');
+        } catch (error: any) {
+
+          if (error.response && error.response.data && error.response.data.message) {
+            notifyError(error.response.data.message);
+          } else if (error.response && error.response.status === 400) {
+            notifyError('CEP não encontrado ou inválido');
+          } else {
+            notifyError('Erro ao buscar CEP: ' + (error.message || 'Verifique sua conexão'));
+          }
+        } finally {
+          cepLoading.value = false;
+        }
+      };
+
+      onMounted(async () => {
+        if (editing) {
+          loading.value = true;
+          try {
+            const { data } = await api.get(`/concessionarias/${id}`);
+            Object.assign(m, data);
+          } catch (error: any) {
+
+            if (error.response && error.response.data && error.response.data.message) {
+              notifyError(error.response.data.message);
+            } else {
+              notifyError('Erro ao carregar dados da concessionária');
+            }
+            handleError(error);
+          } finally {
+            loading.value = false;
+          }
+        }
+      });
+
+      const submit = async () => {
+        clearErrors();
+
+        if (!validateForm()) {
+          return;
+        }
+
+        loading.value = true;
+
+        try {
+          if (editing) {
+            await api.put(`/concessionarias/${id}`, m);
+            notifySuccess('Concessionária atualizada com sucesso!');
+          } else {
+            await api.post('/concessionarias', m);
+            notifySuccess('Concessionária cadastrada com sucesso!');
+          }
+          router.push('/concessionarias');
+        } catch (error: any) {
+
+          if (error.response && error.response.data && error.response.data.message) {
+            notifyError(error.response.data.message);
+          } else if (error.response && error.response.status === 400) {
+            notifyError('Dados inválidos. Verifique os campos e tente novamente.');
+          } else {
+            notifyError('Erro ao salvar concessionária. Verifique sua conexão e tente novamente.');
+          }
           handleError(error);
         } finally {
           loading.value = false;
         }
-      }
-    });
+      };
 
-    const submit = async () => {
-      clearErrors();
-      loading.value = true;
-
-      try {
-        if (editing) {
-          await api.put(`/concessionarias/${id}`, m);
-          notifySuccess('Concessionária atualizada com sucesso!');
-        } else {
-          await api.post('/concessionarias', m);
-          notifySuccess('Concessionária cadastrada com sucesso!');
-        }
-        router.push('/concessionarias');
-      } catch (error) {
-        notifyError('Erro ao salvar concessionária');
-        handleError(error);
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    return {
-      m,
-      editing,
-      submit,
-      errors,
-      buscarCep,
-      loading,
-      cepLoading
-    };
-  }
-};
+      return {
+        m,
+        editing,
+        submit,
+        errors,
+        buscarCep,
+        loading,
+        cepLoading
+      };
+    }
+  };
 </script>

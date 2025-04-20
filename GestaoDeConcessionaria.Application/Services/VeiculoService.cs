@@ -4,9 +4,8 @@ using GestaoDeConcessionaria.Domain.Interfaces;
 
 namespace GestaoDeConcessionaria.Application.Services
 {
-    public class VeiculoService(IVeiculoRepository repositorioVeiculo, IRepository<Veiculo> repository) : IVeiculoService
+    public class VeiculoService(IVeiculoRepository repositorioVeiculo) : IVeiculoService
     {
-        private readonly IRepository<Veiculo> _repository = repository;
         private readonly IVeiculoRepository _repositorioVeiculo = repositorioVeiculo;
 
         public async Task<IEnumerable<Veiculo>> ObterTodosAsync()
@@ -22,22 +21,22 @@ namespace GestaoDeConcessionaria.Application.Services
 
         public async Task AdicionarAsync(Veiculo veiculo)
         {
-            await _repository.AdicionarAsync(veiculo);
-            await _repository.SalvarAsync();
+            await _repositorioVeiculo.AdicionarAsync(veiculo);
+            await _repositorioVeiculo.SalvarAsync();
         }
 
         public async Task AtualizarAsync(Veiculo veiculo)
         {
-            await _repository.AtualizarAsync(veiculo);
-            await _repository.SalvarAsync();
+            await _repositorioVeiculo.AtualizarAsync(veiculo);
+            await _repositorioVeiculo.SalvarAsync();
         }
 
         public async Task DeletarAsync(int id)
         {
-            var veiculo = await _repository.ObterPorIdAsync(id) ?? throw new Exception("Veículo não encontrado.");
+            var veiculo = await _repositorioVeiculo.ObterPorIdAsync(id) ?? throw new Exception("Veículo não encontrado.");
             veiculo.Deletar();
-            await _repository.AtualizarAsync(veiculo);
-            await _repository.SalvarAsync();
+            await _repositorioVeiculo.AtualizarAsync(veiculo);
+            await _repositorioVeiculo.SalvarAsync();
         }
     }
 }
