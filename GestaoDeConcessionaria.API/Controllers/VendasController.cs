@@ -44,12 +44,14 @@ namespace GestaoDeConcessionaria.API.Controllers
 
         [HttpGet("{id}")]
         [AllowAnonymous]
-        public async Task<IActionResult> ObterPorId(int id)
+        public IActionResult ObterPorId(int id)
         {
-            var venda = await _servicoVenda.ObterPorIdAsync(id);
+            var venda = _servicoVenda.ObterPorIdAsync(id);
             if (venda == null)
                 return NotFound();
-            return Ok(venda);
+
+            var dto = VendaFactory.CreateDetalhes(venda);
+            return Ok(dto);
         }
 
         [HttpGet("obter-dados-para-criacao")]
@@ -60,7 +62,7 @@ namespace GestaoDeConcessionaria.API.Controllers
             var concessionarias = await _servicoConcessionaria.ObterTodosAsync();
             var clientes = await _servicoCliente.ObterTodosAsync();
 
-            var veiculosDto = VeiculoFactory.CriacaoDeVeiculoDto(veiculos);
+            var veiculosDto = VeiculoFactory.CreateList(veiculos);
             var concessionariasDto = ConcessionariaFactory.CriacaoDeConcessionariaDto(concessionarias);
             var clientesDto = ClienteFactory.CriarClienteDto(clientes);
 

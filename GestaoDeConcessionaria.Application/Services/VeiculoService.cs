@@ -4,18 +4,19 @@ using GestaoDeConcessionaria.Domain.Interfaces;
 
 namespace GestaoDeConcessionaria.Application.Services
 {
-    public class VeiculoService(IRepository<Veiculo> repositorioVeiculo) : IVeiculoService
+    public class VeiculoService(IVeiculoRepository repositorioVeiculo) : IVeiculoService
     {
-        private readonly IRepository<Veiculo> _repositorioVeiculo = repositorioVeiculo;
+        private readonly IVeiculoRepository _repositorioVeiculo = repositorioVeiculo;
 
         public async Task<IEnumerable<Veiculo>> ObterTodosAsync()
         {
-            return await _repositorioVeiculo.ObterTodosAsync();
+            return await _repositorioVeiculo.ObterTodosOsVeiculosAsync();
         }
 
         public async Task<Veiculo> ObterPorIdAsync(int id)
         {
-            return await _repositorioVeiculo.ObterPorIdAsync(id);
+            var veiculo = await _repositorioVeiculo.ObterVeiculosPorIdAsync(id);
+            return veiculo ?? throw new ArgumentNullException(nameof(id), "Veículo não encontrado.");
         }
 
         public async Task AdicionarAsync(Veiculo veiculo)

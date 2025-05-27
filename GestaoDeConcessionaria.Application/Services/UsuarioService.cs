@@ -31,11 +31,11 @@ namespace GestaoDeConcessionaria.Application.Services
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, usuario.Id),
-                new Claim("nomeUsuario", usuario.UserName),
-                new Claim(ClaimTypes.Role, usuario.NivelAcesso.ToString())
+                new Claim("nomeUsuario", usuario.UserName  ?? ""),
+                new Claim("role", usuario.NivelAcesso.ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Chave"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Chave"] ?? ""));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Emissor"],

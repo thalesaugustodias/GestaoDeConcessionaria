@@ -2,5 +2,16 @@
 
 namespace GestaoDeConcessionaria.Application.DTOs
 {
-    public record VeiculoDto(int Id, string Modelo, int AnoFabricacao, decimal Preco, TipoVeiculo Tipo, string Descricao, int FabricanteId);
+    public class VeiculoDto
+    {
+        public int Id { get; set; }
+        public string Modelo { get; set; } = default!;
+        public int AnoFabricacao { get; set; }
+        public decimal Preco { get; set; }
+        public string Tipo { get; set; } = default!;
+        public string Descricao { get; set; } = default!;
+        public int FabricanteId { get; set; }
+        public string NomeFabricante { get; set; } = default!;
+        public bool Ativo { get; set; }
+    }
 }

@@ -22,7 +22,7 @@ namespace GestaoDeConcessionaria.IoC
             services.AddScoped<IRepository<Concessionaria>, BaseRepository<Concessionaria>>();
             services.AddScoped<IClienteRepository, ClienteRepository>();
             services.AddScoped<IVendaRepository, VendaRepository>();
-            services.AddScoped<IRelatorioService, RelatorioService>();
+            services.AddScoped<IVeiculoRepository, VeiculoRepository>();
 
             // Serviços de aplicação
             services.AddScoped<IFabricanteService, FabricanteService>();
@@ -32,6 +32,7 @@ namespace GestaoDeConcessionaria.IoC
             services.AddScoped<IVendaService, VendaService>();
             services.AddScoped<IUsuarioService, UsuarioService>();
             services.AddTransient<IViaCepService, ViaCepService>();
+            services.AddScoped<IRelatorioService, RelatorioService>();
 
             // Identity
             services.AddIdentity<Usuario, IdentityRole>()

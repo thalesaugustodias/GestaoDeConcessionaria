@@ -1,6 +1,7 @@
 ﻿using GestaoDeConcessionaria.Application.DTOs;
 using GestaoDeConcessionaria.Application.Factories;
 using GestaoDeConcessionaria.Application.Interfaces;
+using GestaoDeConcessionaria.Application.Services;
 using GestaoDeConcessionaria.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,31 +21,36 @@ namespace GestaoDeConcessionaria.API.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ObterTodos()
+        public async Task<ActionResult<IEnumerable<VeiculoDto>>> ObterTodos()
         {
-            var cacheKey = "lista_veiculos";
-            string jsonLista = await _cache.GetStringAsync(cacheKey);
-            if (!string.IsNullOrEmpty(jsonLista))
+            const string cacheKey = "lista_veiculos";
+            string? json = await _cache.GetStringAsync(cacheKey);
+            IEnumerable<Veiculo> raw;
+
+            if (!string.IsNullOrEmpty(json))
             {
-                var veiculosCache = JsonSerializer.Deserialize<IEnumerable<Veiculo>>(jsonLista);
-                return Ok(veiculosCache);
+                raw = JsonSerializer.Deserialize<IEnumerable<Veiculo>>(json)!;
+            }
+            else
+            {
+                raw = await _servicoVeiculo.ObterTodosAsync();
+                json = JsonSerializer.Serialize(raw);
+                var opts = new DistributedCacheEntryOptions()
+                               .SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                await _cache.SetStringAsync(cacheKey, json, opts);
             }
 
-            var veiculos = await _servicoVeiculo.ObterTodosAsync();
-            jsonLista = JsonSerializer.Serialize(veiculos);
-            var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-            await _cache.SetStringAsync(cacheKey, jsonLista, options);
-            return Ok(veiculos);
+            var dtos = VeiculoFactory.CreateList(raw);
+            return Ok(dtos);
         }
-
-        [HttpGet("{id}")]
+        
+        [HttpGet("{id:int}")]
         [AllowAnonymous]
-        public async Task<IActionResult> ObterPorId(int id)
+        public async Task<ActionResult<VeiculoDto>> ObterPorId(int id)
         {
-            var veiculo = await _servicoVeiculo.ObterPorIdAsync(id);
-            if (veiculo == null)
-                return NotFound();
-            return Ok(veiculo);
+            var v = await _servicoVeiculo.ObterPorIdAsync(id);
+            if (v is null) return NotFound();
+            return Ok(VeiculoFactory.Create(v));
         }
 
         [HttpPost]

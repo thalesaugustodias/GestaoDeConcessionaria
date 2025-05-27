@@ -1,9 +1,14 @@
 ﻿using GestaoDeConcessionaria.Application.DTOs;
+using GestaoDeConcessionaria.Application.Extensions;
+using GestaoDeConcessionaria.Application.Factories;
 using GestaoDeConcessionaria.Application.Interfaces;
 
 namespace GestaoDeConcessionaria.Application.Services
 {
-    public class RelatorioService(IVendaService vendaService, IClienteService clienteService, IVeiculoService veiculoService) : IRelatorioService
+    public class RelatorioService(
+        IVendaService vendaService,
+        IClienteService clienteService,
+        IVeiculoService veiculoService) : IRelatorioService
     {
         private readonly IVendaService _vendaService = vendaService;
         private readonly IClienteService _clienteService = clienteService;
@@ -11,37 +16,24 @@ namespace GestaoDeConcessionaria.Application.Services
 
         public async Task<DashboardDto> GerarRelatorioMensalAsync(int mes, int ano)
         {
-            var vendas = await _vendaService.ObterTodasAsVendasAsync();
-            var vendasMensais = vendas.Where(v => v.DataVenda.Month == mes && v.DataVenda.Year == ano).ToList();
-            var totalVeiculosAtivos = _veiculoService.ObterTodosAsync().Result;
-            var totalClientesAtivos = _clienteService.ObterTodosAsync().Result;
+            var todasVendas = await _vendaService.ObterTodasAsVendasAsync();
+            var todasVeiculos = await _veiculoService.ObterTodosAsync();
+            var todosClientes = await _clienteService.ObterTodosAsync();
 
-            if (vendasMensais.Count == 0)
-                throw new Exception("Nenhuma venda encontrada para o período informado.");
-
-            var totalVendas = vendasMensais.Count;
-            var faturamento = vendasMensais.Sum(v => v.PrecoVenda);
-
-            var vendasPorTipo = vendasMensais.GroupBy(v => v.Veiculo.Tipo)
-                .Select(g => new DataPoint(g.Key.ToString(), g.Count()))
+            var vendasDoPeriodo = todasVendas
+                .Where(v => v.DataVenda.Month == mes && v.DataVenda.Year == ano)
                 .ToList();
 
-            var vendasPorFabricante = vendasMensais.GroupBy(v => v.Veiculo.Fabricante.Nome)
-                .Select(g => new DataPoint(g.Key, g.Count()))
-                .ToList();
-
-            var desempenhoConcessionarias = vendasMensais.GroupBy(v => v.Concessionaria.Nome)
-                .Select(g => new DataPoint(g.Key, g.Count()))
-                .ToList();
-
-            var vendasPorDia = vendasMensais
-                .GroupBy(v => v.DataVenda.Day)
-                .Select(g => new DataPoint(g.Key.ToString("D2"), g.Count()))
-                .OrderBy(dp => int.Parse(dp.Label))
-                .ToList();
-
-            return new DashboardDto(totalVendas, faturamento, vendasPorTipo, vendasPorFabricante, desempenhoConcessionarias, vendasPorDia, totalVeiculosAtivos.Count(), totalClientesAtivos.Count());
+            return DashboardDtoFactory.Criar(
+                totalVendas: vendasDoPeriodo.Count,
+                faturamento: vendasDoPeriodo.Sum(v => v.PrecoVenda),
+                vendasPorTipo: vendasDoPeriodo.ToDataPoints(v => v.Veiculo.Tipo.ToString()),
+                vendasPorFabricante: vendasDoPeriodo.ToDataPoints(v => v.Veiculo.Fabricante.Nome),
+                desempenhoConcessionarias: vendasDoPeriodo.ToDataPoints(v => v.Concessionaria.Nome),
+                vendasPorDia: vendasDoPeriodo.ToDataPoints(v => v.DataVenda.Day.ToString("D2")),
+                totalVeiculosAtivos: todasVeiculos.Count(),
+                totalClientesAtivos: todosClientes.Count()
+            );
         }
-
     }
 }
