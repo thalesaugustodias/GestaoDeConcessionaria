@@ -1,111 +1,46 @@
-﻿using GestaoDeConcessionaria.Application.DTOs;
-using GestaoDeConcessionaria.Application.Factories;
-using GestaoDeConcessionaria.Application.Interfaces;
-using GestaoDeConcessionaria.Domain.Entities;
+﻿using GestaoDeConcessionaria.Application.Commands.Clientes;
+using GestaoDeConcessionaria.Application.Queries.Clientes;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using System.Text.Json;
 
 namespace GestaoDeConcessionaria.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/[controller]"), ApiController]
     [Authorize(Roles = "Administrador,Vendedor,Gerente")]
-    public class ClientesController(IClienteService servicoCliente, IDistributedCache cache) : ControllerBase
+    public class ClientesController : ControllerBase
     {
-        private readonly IClienteService _servicoCliente = servicoCliente;
-        private readonly IDistributedCache _cache = cache;
+        private readonly IMediator _med;
+        public ClientesController(IMediator med) => _med = med;
 
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> ObterTodos()
-        {
-            var cacheKey = "lista_clientes";
-            string jsonLista = await _cache.GetStringAsync(cacheKey);
-            if (!string.IsNullOrEmpty(jsonLista))
-            {
-                var clientesCache = JsonSerializer.Deserialize<IEnumerable<Cliente>>(jsonLista);
-                return Ok(clientesCache);
-            }
+        [HttpGet, AllowAnonymous]
+        public async Task<IActionResult> BuscarTodos() =>
+            Ok(await _med.Send(new BuscarTodosOsClientesQuery()));
 
-            var clientes = await _servicoCliente.ObterTodosAsync();
-            jsonLista = JsonSerializer.Serialize(clientes);
-            var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-            await _cache.SetStringAsync(cacheKey, jsonLista, options);
-            return Ok(clientes);
-        }
-
-        [HttpGet("{id}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ObterPorId(int id)
-        {
-            var cliente = await _servicoCliente.ObterPorIdAsync(id);
-            if (cliente == null)
-                return NotFound();
-            return Ok(cliente);
-        }
+        [HttpGet("{id}"), AllowAnonymous]
+        public async Task<IActionResult> BuscarPorId(int id) =>
+            Ok(await _med.Send(new BuscarClientePorIdQuery(id)));
 
         [HttpPost]
-        public async Task<IActionResult> Criar([FromBody] ClienteDto dto)
+        public async Task<IActionResult> Criar(CriarClienteComando cmd)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var cliente = ClienteFactory.Criar(dto);
-                await _servicoCliente.AdicionarAsync(cliente);
-                await _cache.RemoveAsync("lista_clientes");
-                return CreatedAtAction(nameof(ObterPorId), new { id = cliente.Id }, cliente);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { ex.Message });
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
-            }
+            var dto = await _med.Send(cmd);
+            return CreatedAtAction(nameof(BuscarPorId), new { id = dto.Id }, dto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Atualizar(int id, [FromBody] ClienteDto dto)
+        public async Task<IActionResult> Atualizar(int id, AtualizarClienteComando cmd)
         {
-            try
-            {
-                var clienteExistente = await _servicoCliente.ObterPorIdAsync(id);
-                if (clienteExistente == null)
-                    return NotFound();
-
-                ClienteFactory.Atualizar(clienteExistente, dto);
-                await _servicoCliente.AtualizarAsync(clienteExistente);
-                await _cache.RemoveAsync("lista_clientes");
-                return NoContent();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { ex.Message });
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
-            }
+            if (id != cmd.Id) return BadRequest();
+            await _med.Send(cmd);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Remover(int id)
+        public async Task<IActionResult> Deletar(int id)
         {
-            try
-            {
-                await _servicoCliente.DeletarAsync(id);
-                await _cache.RemoveAsync("lista_clientes");
-                return NoContent();
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
-            }
+            await _med.Send(new DeletarClienteComando(id));
+            return NoContent();
         }
     }
 }

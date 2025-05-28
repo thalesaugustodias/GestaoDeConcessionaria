@@ -1,34 +1,25 @@
-﻿using GestaoDeConcessionaria.Application.DTOs;
-using GestaoDeConcessionaria.Application.Interfaces;
-using GestaoDeConcessionaria.Domain.Entities;
+﻿using GestaoDeConcessionaria.Application.Commands.Auth;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestaoDeConcessionaria.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController(IUsuarioService usuarioServico) : ControllerBase
+    [Route("api/[controller]"), ApiController]
+    public class AuthController(IMediator med) : ControllerBase
     {
-        private readonly IUsuarioService _usuarioServico = usuarioServico;
+        private readonly IMediator _med = med;
 
         [HttpPost("registrar")]
-        public async Task<IActionResult> Registrar([FromBody] RegistrarUsuarioDto request)
+        public async Task<IActionResult> Registrar(RegistrarUsuarioComando cmd)
         {
-            var usuario = new Usuario
-            {
-                UserName = request.NomeUsuario,
-                Email = request.Email,
-                NivelAcesso = request.NivelAcesso
-            };
-
-            var resultado = await _usuarioServico.RegistrarAsync(usuario, request.Senha);
-            return Ok(resultado);
+            await _med.Send(cmd);
+            return Ok();
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginUsuarioDto request)
+        public async Task<IActionResult> Login(LoginUsuarioComando cmd)
         {
-            var token = await _usuarioServico.AutenticarAsync(request.NomeUsuario, request.Senha);
+            var token = await _med.Send(cmd);
             return Ok(new { token });
         }
     }

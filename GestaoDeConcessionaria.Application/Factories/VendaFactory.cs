@@ -15,7 +15,7 @@ namespace GestaoDeConcessionaria.Application.Factories
             return new VendaDadosDeCriacaoDto(veiculos, concessionarias, clientes);
         }
 
-        public static VendaDetalhesDto CreateDetalhes(Venda v)
+        public static VendaDetalhesDto CriarDetalhes(Venda v)
         {
             return new VendaDetalhesDto
             {
