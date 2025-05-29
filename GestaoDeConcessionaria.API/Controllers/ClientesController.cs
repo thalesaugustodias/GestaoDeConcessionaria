@@ -8,10 +8,9 @@ namespace GestaoDeConcessionaria.API.Controllers
 {
     [Route("api/[controller]"), ApiController]
     [Authorize(Roles = "Administrador,Vendedor,Gerente")]
-    public class ClientesController : ControllerBase
+    public class ClientesController(IMediator med) : ControllerBase
     {
-        private readonly IMediator _med;
-        public ClientesController(IMediator med) => _med = med;
+        private readonly IMediator _med = med;
 
         [HttpGet, AllowAnonymous]
         public async Task<IActionResult> BuscarTodos() =>
@@ -31,7 +30,7 @@ namespace GestaoDeConcessionaria.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Atualizar(int id, AtualizarClienteComando cmd)
         {
-            if (id != cmd.Id) return BadRequest();
+            if (id != cmd.Dto.Id) return BadRequest();
             await _med.Send(cmd);
             return NoContent();
         }

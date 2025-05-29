@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using GestaoDeConcessionaria.Domain.Exceptions;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace GestaoDeConcessionaria.Domain.Entities
@@ -45,17 +46,17 @@ namespace GestaoDeConcessionaria.Domain.Entities
         private static void Validar(string nome, string rua, string cidade, string estado, string cep, string telefone, string email, int capacidadeMaxima)
         {
             if (string.IsNullOrWhiteSpace(nome) || nome.Length > 100)
-                throw new ArgumentException("Nome da concessionária inválido.");
+                throw new DomainValidationException("Nome da concessionária inválido.");
             if (string.IsNullOrWhiteSpace(rua) || string.IsNullOrWhiteSpace(cidade) || string.IsNullOrWhiteSpace(estado))
-                throw new ArgumentException("Endereço incompleto.");
+                throw new DomainValidationException("Endereço incompleto.");
             if (!Regex.IsMatch(cep, @"^\d{5}-?\d{3}$"))
-                throw new ArgumentException("CEP inválido.");
+                throw new DomainValidationException("CEP inválido.");
             if (!Regex.IsMatch(telefone, @"^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$"))
-                throw new ArgumentException("Telefone inválido.");
+                throw new DomainValidationException("Telefone inválido.");
             if (!Regex.IsMatch(email, @"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"))
-                throw new ArgumentException("Email inválido.");
+                throw new DomainValidationException("Email inválido.");
             if (capacidadeMaxima < 1)
-                throw new ArgumentException("Capacidade máxima deve ser um número positivo.");
+                throw new DomainValidationException("Capacidade máxima deve ser um número positivo.");
         }
 
         public void Atualizar(string nome, string rua, string cidade, string estado, string cep, string telefone, string email, int capacidadeMaxima)

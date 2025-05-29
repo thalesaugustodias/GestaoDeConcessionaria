@@ -1,111 +1,46 @@
-﻿using GestaoDeConcessionaria.Application.DTOs;
-using GestaoDeConcessionaria.Application.Factories;
-using GestaoDeConcessionaria.Application.Interfaces;
-using GestaoDeConcessionaria.Domain.Entities;
+﻿using GestaoDeConcessionaria.Application.Commands.Fabricantes;
+using GestaoDeConcessionaria.Application.Queries.Fabricantes;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using System.Text.Json;
 
 namespace GestaoDeConcessionaria.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
+    [Route("api/[controller]"), ApiController]
     [Authorize(Roles = "Administrador")]
-    public class FabricantesController(IFabricanteService servicoFabricante, IDistributedCache cache) : ControllerBase
+    public class FabricantesController : ControllerBase
     {
-        private readonly IFabricanteService _servicoFabricante = servicoFabricante;
-        private readonly IDistributedCache _cache = cache;
+        private readonly IMediator _med;
+        public FabricantesController(IMediator med) => _med = med;
 
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> ObterTodos()
-        {
-            var cacheKey = "lista_fabricantes";
-            string jsonLista = await _cache.GetStringAsync(cacheKey);
-            if (!string.IsNullOrEmpty(jsonLista))
-            {
-                var fabricantesCache = JsonSerializer.Deserialize<IEnumerable<Fabricante>>(jsonLista);
-                return Ok(fabricantesCache);
-            }
+        [HttpGet, AllowAnonymous]
+        public async Task<IActionResult> BuscarTodos() =>
+            Ok(await _med.Send(new BuscarTodosOsFabricantesQuery()));
 
-            var fabricantes = await _servicoFabricante.ObterTodosAsync();
-            jsonLista = JsonSerializer.Serialize(fabricantes);
-            var options = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-            await _cache.SetStringAsync(cacheKey, jsonLista, options);
-            return Ok(fabricantes);
-        }
-
-        [HttpGet("{id}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> ObterPorId(int id)
-        {
-            var fabricante = await _servicoFabricante.ObterPorIdAsync(id);
-            if (fabricante == null)
-                return NotFound();
-            return Ok(fabricante);
-        }
+        [HttpGet("{id}"), AllowAnonymous]
+        public async Task<IActionResult> BuscarPorId(int id) =>
+            Ok(await _med.Send(new BuscarFabricantePorIdQuery(id)));
 
         [HttpPost]
-        public async Task<IActionResult> Criar([FromBody] FabricanteDto dto)
+        public async Task<IActionResult> Criar(CriarFabricantesComando cmd)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var fabricante = FabricanteFactory.Criar(dto);
-                await _servicoFabricante.AdicionarAsync(fabricante);
-                await _cache.RemoveAsync("lista_fabricantes");
-                return CreatedAtAction(nameof(ObterPorId), new { id = fabricante.Id }, fabricante);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { ex.Message });
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
-            }
+            var dto = await _med.Send(cmd);
+            return CreatedAtAction(nameof(BuscarPorId), new { id = dto.Id }, dto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Atualizar(int id, [FromBody] FabricanteDto dto)
+        public async Task<IActionResult> Atualizar(int id, AtualizarFabricanteComando cmd)
         {
-            try
-            {
-                var fabricanteExistente = await _servicoFabricante.ObterPorIdAsync(id);
-                if (fabricanteExistente == null)
-                    return NotFound();
-
-                FabricanteFactory.Atualizar(fabricanteExistente, dto);
-                await _servicoFabricante.AtualizarAsync(fabricanteExistente);
-                await _cache.RemoveAsync("lista_fabricantes");
-                return NoContent();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { ex.Message });
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
-            }
+            if (id != cmd.Id) return BadRequest();
+            await _med.Send(cmd);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Remover(int id)
+        public async Task<IActionResult> Deletar(int id)
         {
-            try
-            {
-                await _servicoFabricante.DeletarAsync(id);
-                await _cache.RemoveAsync("lista_fabricantes");
-                return NoContent();
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, new { Message = "Ocorreu um erro interno. Por favor, tente novamente mais tarde." });
-            }
+            await _med.Send(new DeletarFabricanteComando(id));
+            return NoContent();
         }
     }
 }

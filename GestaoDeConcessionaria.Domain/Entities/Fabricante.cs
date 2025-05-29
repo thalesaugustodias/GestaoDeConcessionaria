@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GestaoDeConcessionaria.Domain.Exceptions;
+using System;
 using System.Text.Json.Serialization;
 
 namespace GestaoDeConcessionaria.Domain.Entities
@@ -38,13 +39,13 @@ namespace GestaoDeConcessionaria.Domain.Entities
         private static void Validar(string nome, string paisOrigem, int anoFundacao, string website)
         {
             if (string.IsNullOrWhiteSpace(nome) || nome.Length > 100)
-                throw new ArgumentException("Nome do fabricante inválido.");
+                throw new DomainValidationException("Nome do fabricante inválido.");
             if (string.IsNullOrWhiteSpace(paisOrigem) || paisOrigem.Length > 50)
-                throw new ArgumentException("País de origem inválido.");
+                throw new DomainValidationException("País de origem inválido.");
             if (anoFundacao >= DateTime.Now.Year)
-                throw new ArgumentException("O ano de fundação deve ser menor que o ano atual.");
+                throw new DomainValidationException("O ano de fundação deve ser menor que o ano atual.");
             if (!Uri.TryCreate(website, UriKind.Absolute, out _))
-                throw new ArgumentException("Website inválido.");
+                throw new DomainValidationException("Website inválido.");
         }
 
         public void Atualizar(string nome, string paisOrigem, int anoFundacao, string website)

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using GestaoDeConcessionaria.Domain.Exceptions;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace GestaoDeConcessionaria.Domain.Entities
@@ -30,11 +31,11 @@ namespace GestaoDeConcessionaria.Domain.Entities
         private static void Validar(string nome, string cpf, string telefone)
         {
             if (string.IsNullOrWhiteSpace(nome) || nome.Length > 100)
-                throw new ArgumentException("Nome do cliente inválido.");
+                throw new DomainValidationException("Nome do cliente inválido.");
             if (!Regex.IsMatch(cpf, @"^\d{11}$"))
-                throw new ArgumentException("CPF inválido.");
+                throw new DomainValidationException("CPF inválido.");
             if (string.IsNullOrWhiteSpace(telefone))
-                throw new ArgumentException("Telefone inválido.");
+                throw new DomainValidationException("Telefone inválido.");
         }
 
         public void Atualizar(string nome, string cpf, string telefone)

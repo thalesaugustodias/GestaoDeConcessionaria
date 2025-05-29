@@ -1,4 +1,5 @@
 ﻿using GestaoDeConcessionaria.Domain.Enums;
+using GestaoDeConcessionaria.Domain.Exceptions;
 using System.Text.Json.Serialization;
 
 namespace GestaoDeConcessionaria.Domain.Entities
@@ -42,13 +43,13 @@ namespace GestaoDeConcessionaria.Domain.Entities
         private static void Validar(string modelo, int anoFabricacao, decimal preco, Fabricante fabricante)
         {
             if (string.IsNullOrWhiteSpace(modelo) || modelo.Length > 100)
-                throw new ArgumentException("Modelo do veículo inválido.");
+                throw new DomainValidationException("Modelo do veículo inválido.");
             if (anoFabricacao > DateTime.Now.Year)
-                throw new ArgumentException("Ano de fabricação não pode ser no futuro.");
+                throw new DomainValidationException("Ano de fabricação não pode ser no futuro.");
             if (preco <= 0)
-                throw new ArgumentException("Preço deve ser um valor positivo.");
+                throw new DomainValidationException("Preço deve ser um valor positivo.");
             if (fabricante == null)
-                throw new ArgumentException("Fabricante é obrigatório.");
+                throw new DomainValidationException("Fabricante é obrigatório.");
         }
 
         public void Atualizar(string modelo, int anoFabricacao, decimal preco, TipoVeiculo tipo, string descricao, Fabricante fabricante)
@@ -58,7 +59,7 @@ namespace GestaoDeConcessionaria.Domain.Entities
             AnoFabricacao = anoFabricacao;
             Preco = preco;
             Tipo = tipo;
-            Descricao = descricao?.Length <= 500 ? descricao : throw new ArgumentException("Descrição excede 500 caracteres.");
+            Descricao = descricao?.Length <= 500 ? descricao : throw new DomainValidationException("Descrição excede 500 caracteres.");
             Fabricante = fabricante;
             FabricanteId = fabricante.Id;
         }

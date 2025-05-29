@@ -1,3 +1,4 @@
+using GestaoDeConcessionaria.API.Filters;
 using GestaoDeConcessionaria.Infrastructure.ApiConfigurations;
 using GestaoDeConcessionaria.Infrastructure.Context;
 using GestaoDeConcessionaria.IoC;
@@ -14,6 +15,10 @@ builder.Services.AddDbContext<AplicationDbContext>(options =>
 
 builder.Services.AddHttpClient();
 builder.Services.AddApiConfig();
+builder.Services.AddMvc(options =>
+ {
+     options.Filters.Add(new FiltrosDeExceptionCustomizados());
+ });
 builder.Services.AddSwaggerConfig();
 builder.Services.AddJwtConfiguration(builder.Configuration);
 builder.Services.AddRazorPages();

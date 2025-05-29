@@ -1,4 +1,5 @@
-﻿using GestaoDeConcessionaria.Application.Interfaces;
+﻿using FluentValidation;
+using GestaoDeConcessionaria.Application.Interfaces;
 using GestaoDeConcessionaria.Application.Services;
 using GestaoDeConcessionaria.Domain.Entities;
 using GestaoDeConcessionaria.Domain.Interfaces;
@@ -7,6 +8,7 @@ using GestaoDeConcessionaria.Infrastructure.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace GestaoDeConcessionaria.IoC
 {
@@ -41,6 +43,13 @@ namespace GestaoDeConcessionaria.IoC
 
             // HttpContextAccessor
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            // MediatR
+            var myHandlers = AppDomain.CurrentDomain.Load("GestaoDeConcessionaria.Application");
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(myHandlers));
+
+            // FluentValidation
+            services.AddValidatorsFromAssembly(Assembly.Load("GestaoDeConcessionaria.Application"));
 
             return services;
         }

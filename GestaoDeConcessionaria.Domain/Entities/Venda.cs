@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using GestaoDeConcessionaria.Domain.Exceptions;
+using System.Text.Json.Serialization;
 
 namespace GestaoDeConcessionaria.Domain.Entities
 {
@@ -47,15 +48,15 @@ namespace GestaoDeConcessionaria.Domain.Entities
         private static void Validar(Veiculo veiculo, Concessionaria concessionaria, Cliente cliente, DateTime dataVenda, decimal precoVenda)
         {
             if (veiculo == null)
-                throw new ArgumentException("Veículo inválido.");
+                throw new DomainValidationException("Veículo inválido.");
             if (concessionaria == null)
-                throw new ArgumentException("Concessionária inválida.");
+                throw new DomainValidationException("Concessionária inválida.");
             if (cliente == null)
-                throw new ArgumentException("Cliente inválido.");
+                throw new DomainValidationException("Cliente inválido.");
             if (dataVenda > DateTime.Now)
-                throw new ArgumentException("Data da venda não pode ser futura.");
+                throw new DomainValidationException("Data da venda não pode ser futura.");
             if (precoVenda <= 0 || precoVenda > veiculo.Preco)
-                throw new ArgumentException("Preço de venda inválido.");
+                throw new DomainValidationException("Preço de venda inválido.");
         }
 
         private static string GerarProtocolo()

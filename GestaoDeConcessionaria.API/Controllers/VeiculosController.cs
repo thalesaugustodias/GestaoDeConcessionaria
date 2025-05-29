@@ -1,118 +1,45 @@
-﻿using GestaoDeConcessionaria.Application.DTOs;
-using GestaoDeConcessionaria.Application.Factories;
-using GestaoDeConcessionaria.Application.Interfaces;
-using GestaoDeConcessionaria.Application.Services;
-using GestaoDeConcessionaria.Domain.Entities;
+﻿using GestaoDeConcessionaria.Application.Commands.Veiculos;
+using GestaoDeConcessionaria.Application.Queries.Veiculos;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using System.Text.Json;
 
 namespace GestaoDeConcessionaria.API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize(Roles = "Gerente")]
-    public class VeiculosController(IVeiculoService servicoVeiculo, IFabricanteService servicoFabricante, IDistributedCache cache) : ControllerBase
+    [Route("api/[controller]"), ApiController]
+    [Authorize(Roles = "Gerente,Administrador")]
+    public class VeiculosController(IMediator med) : ControllerBase
     {
-        private readonly IVeiculoService _servicoVeiculo = servicoVeiculo;
-        private readonly IFabricanteService _servicoFabricante = servicoFabricante;
-        private readonly IDistributedCache _cache = cache;
+        private readonly IMediator _med = med;
 
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<VeiculoDto>>> ObterTodos()
-        {
-            const string cacheKey = "lista_veiculos";
-            string? json = await _cache.GetStringAsync(cacheKey);
-            IEnumerable<Veiculo> raw;
+        [HttpGet, AllowAnonymous]
+        public async Task<IActionResult> BuscarTodos() =>
+            Ok(await _med.Send(new BuscarTodosOsVeiculosQuery()));
 
-            if (!string.IsNullOrEmpty(json))
-            {
-                raw = JsonSerializer.Deserialize<IEnumerable<Veiculo>>(json)!;
-            }
-            else
-            {
-                raw = await _servicoVeiculo.ObterTodosAsync();
-                json = JsonSerializer.Serialize(raw);
-                var opts = new DistributedCacheEntryOptions()
-                               .SetSlidingExpiration(TimeSpan.FromMinutes(5));
-                await _cache.SetStringAsync(cacheKey, json, opts);
-            }
-
-            var dtos = VeiculoFactory.CreateList(raw);
-            return Ok(dtos);
-        }
-        
-        [HttpGet("{id:int}")]
-        [AllowAnonymous]
-        public async Task<ActionResult<VeiculoDto>> ObterPorId(int id)
-        {
-            var v = await _servicoVeiculo.ObterPorIdAsync(id);
-            if (v is null) return NotFound();
-            return Ok(VeiculoFactory.Create(v));
-        }
+        [HttpGet("{id}"), AllowAnonymous]
+        public async Task<IActionResult> BuscarPorId(int id) =>
+            Ok(await _med.Send(new BuscarVeiculoPorIdQuery(id)));
 
         [HttpPost]
-        public async Task<IActionResult> Criar([FromBody] VeiculoDto dto)
+        public async Task<IActionResult> Criar(CriarVeiculosComando cmd)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var fabricante = await _servicoFabricante.ObterPorIdAsync(dto.FabricanteId);
-            if (fabricante == null)
-                return BadRequest(new { Message = "Fabricante não encontrado." });
-
-            try
-            {
-                var veiculo = VeiculoFactory.CriarVeiculo(dto, fabricante);
-                await _servicoVeiculo.AdicionarAsync(veiculo);
-                await _cache.RemoveAsync("lista_veiculos");
-                return CreatedAtAction(nameof(ObterPorId), new { id = veiculo.Id }, veiculo);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = "Erro ao adicionar veículo: " + ex.Message });
-            }
+            var dto = await _med.Send(cmd);
+            return CreatedAtAction(nameof(BuscarPorId), new { id = dto.Id }, dto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Atualizar(int id, [FromBody] VeiculoDto dto)
+        public async Task<IActionResult> Atualizar(int id, AtualizarVeiculoComando cmd)
         {
-            try
-            {
-                var veiculoExistente = await _servicoVeiculo.ObterPorIdAsync(id);
-                if (veiculoExistente == null)
-                    return NotFound();
-
-                var fabricante = await _servicoFabricante.ObterPorIdAsync(dto.FabricanteId);
-                if (fabricante == null)
-                    return BadRequest(new { Message = "Fabricante não encontrado." });
-
-                VeiculoFactory.Atualizar(veiculoExistente, dto, fabricante);
-                await _servicoVeiculo.AtualizarAsync(veiculoExistente);
-                await _cache.RemoveAsync("lista_veiculos");
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = "Erro ao atualizar veículo: " + ex.Message });
-            }
+            if (id != cmd.Id) return BadRequest();
+            await _med.Send(cmd);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Remover(int id)
+        public async Task<IActionResult> Deletar(int id)
         {
-            try
-            {
-                await _servicoVeiculo.DeletarAsync(id);
-                await _cache.RemoveAsync("lista_veiculos");
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Message = "Erro ao remover veículo: " + ex.Message });
-            }
+            await _med.Send(new DeletarVeiculoComando(id));
+            return NoContent();
         }
     }
 }

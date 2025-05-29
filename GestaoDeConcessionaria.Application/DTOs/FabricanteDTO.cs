@@ -1,4 +1,4 @@
 ﻿namespace GestaoDeConcessionaria.Application.DTOs
 {
-    public record FabricanteDto(string Nome, string PaisOrigem, int AnoFundacao, string Website);
+    public record FabricanteDto(int Id, string Nome, string PaisOrigem, int AnoFundacao, string Website);
 }

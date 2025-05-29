@@ -10,7 +10,7 @@ namespace GestaoDeConcessionaria.Application.Commands.Clientes
 
         public async Task<Unit> Handle(AtualizarClienteComando request, CancellationToken cancellationToken)
         {
-            var ent = await _svc.ObterPorIdAsync(request.Id)
+            var ent = await _svc.ObterPorIdAsync(request.Dto.Id)
             ?? throw new KeyNotFoundException("Cliente não encontrado");
             ClienteFactory.Atualizar(ent, request.Dto);
             await _svc.AtualizarAsync(ent);
