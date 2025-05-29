@@ -10,7 +10,7 @@ namespace GestaoDeConcessionaria.Application.Commands.Fabricantes
 
         public async Task<Unit> Handle(AtualizarFabricanteComando cmd, CancellationToken ct)
         {
-            var ent = await _svc.ObterPorIdAsync(cmd.Id)
+            var ent = await _svc.ObterPorIdAsync(cmd.Dto.Id)
                 ?? throw new KeyNotFoundException("Fabricante não encontrado");
             FabricanteFactory.Atualizar(ent, cmd.Dto);
             await _svc.AtualizarAsync(ent);

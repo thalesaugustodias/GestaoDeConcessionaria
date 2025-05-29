@@ -3,5 +3,5 @@ using MediatR;
 
 namespace GestaoDeConcessionaria.Application.Commands.Veiculos
 {
-    public record AtualizarVeiculoComando(int Id, VeiculoDto Dto) : IRequest<Unit>;
+    public record AtualizarVeiculoComando(VeiculoDto Dto) : IRequest<Unit>;
 }

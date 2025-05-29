@@ -11,7 +11,7 @@ namespace GestaoDeConcessionaria.Application.Commands.Veiculos
 
         public async Task<Unit> Handle(AtualizarVeiculoComando cmd, CancellationToken ct)
         {
-            var ent = await _vS.ObterPorIdAsync(cmd.Id)
+            var ent = await _vS.ObterPorIdAsync(cmd.Dto.Id)
                 ?? throw new KeyNotFoundException("Veículo não encontrado");
             var fab = await _fS.ObterPorIdAsync(cmd.Dto.FabricanteId)
                 ?? throw new KeyNotFoundException("Fabricante não encontrado");
