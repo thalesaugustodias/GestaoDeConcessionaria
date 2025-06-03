@@ -20,16 +20,16 @@ namespace GestaoDeConcessionaria.Infrastructure.Repository
                 .ToListAsync();
         }
 
-        public Venda? ObterVendasPorIdAsync(int id)
+        public async Task<Venda?> ObterVendasPorIdAsync(int id)
         {
-            return  _contexto.Vendas
+            return await _contexto.Vendas
                 .AsNoTracking()
                 .Include(v => v.Veiculo)
                     .ThenInclude(v => v.Fabricante)
                 .Include(v => v.Concessionaria)
                 .Include(v => v.Cliente)
                 .Where(v => EF.Property<bool>(v, "Ativo") && v.Id == id)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
     }
 }
