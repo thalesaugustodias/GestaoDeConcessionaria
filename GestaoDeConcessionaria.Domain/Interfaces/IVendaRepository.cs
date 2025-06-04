@@ -5,6 +5,6 @@ namespace GestaoDeConcessionaria.Domain.Interfaces
     public interface IVendaRepository : IRepository<Venda>
     {
         Task<IEnumerable<Venda>> ObterTodasAsVendasAsync();
-        Venda? ObterVendasPorIdAsync(int id);
+        Task<Venda?> ObterVendasPorIdAsync(int id);
     }
 }

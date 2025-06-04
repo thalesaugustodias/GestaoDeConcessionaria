@@ -11,7 +11,7 @@ namespace GestaoDeConcessionaria.Application.Queries.Vendas
 
         public async Task<VendaDetalhesDto> Handle(BuscarVendaPorIdQuery q, CancellationToken ct)
         {
-            var v = await Task.FromResult(_svc.ObterPorIdAsync(q.Id))
+            var v = await _svc.ObterPorIdAsync(q.Id)
                 ?? throw new KeyNotFoundException("Venda não encontrada");
             return VendaFactory.CriarDetalhes(v);
         }

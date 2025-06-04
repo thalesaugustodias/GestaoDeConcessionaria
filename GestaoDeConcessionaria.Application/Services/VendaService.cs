@@ -8,9 +8,9 @@ namespace GestaoDeConcessionaria.Application.Services
     {
         private readonly IVendaRepository _repositorioVenda = repositorioVenda;
 
-        public Venda? ObterPorIdAsync(int id)
+        public async Task<Venda?> ObterPorIdAsync(int id)
         {
-            return _repositorioVenda.ObterVendasPorIdAsync(id);
+            return await _repositorioVenda.ObterVendasPorIdAsync(id);
         }
 
         public async Task AdicionarAsync(Venda venda)
