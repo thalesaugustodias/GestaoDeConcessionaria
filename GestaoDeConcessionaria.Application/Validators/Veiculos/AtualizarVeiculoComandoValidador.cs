@@ -7,7 +7,7 @@ namespace GestaoDeConcessionaria.Application.Validators.Veiculos
     {
         public AtualizarVeiculoComandoValidador()
         {
-            RuleFor(x => x.Id)
+            RuleFor(x => x.Dto.Id)
                 .GreaterThan(0)
                 .WithMessage("ID deve ser maior que zero");
 

@@ -7,7 +7,7 @@ namespace GestaoDeConcessionaria.Application.Validators.Fabricantes
     {
         public AtualizarFabricanteComandoValidador()
         {
-            RuleFor(x => x.Id)
+            RuleFor(x => x.Dto.Id)
                 .GreaterThan(0)
                 .WithMessage("O Id do fabricante deve ser maior que zero.");
 

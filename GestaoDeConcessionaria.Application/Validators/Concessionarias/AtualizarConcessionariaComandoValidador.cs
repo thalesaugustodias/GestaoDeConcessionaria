@@ -7,7 +7,7 @@ namespace GestaoDeConcessionaria.Application.Validators.Concessionarias
     {
         public AtualizarConcessionariaComandoValidador()
         {
-            RuleFor(x => x.Id)
+            RuleFor(x => x.Dto.Id)
                 .GreaterThan(0)
                 .WithMessage("O Id da concessionária deve ser maior que zero.");
 
