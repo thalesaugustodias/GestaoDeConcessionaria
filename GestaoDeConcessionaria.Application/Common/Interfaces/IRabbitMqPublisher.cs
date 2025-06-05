@@ -1,4 +1,4 @@
-﻿namespace GestaoDeConcessionaria.Application.Common
+﻿namespace GestaoDeConcessionaria.Application.Common.Interfaces
 {
     public interface IRabbitMqPublisher
     {

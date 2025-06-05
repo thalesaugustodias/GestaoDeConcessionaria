@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using GestaoDeConcessionaria.Application.Common;
+using GestaoDeConcessionaria.Application.Common.Interfaces;
 using GestaoDeConcessionaria.Application.Interfaces;
 using GestaoDeConcessionaria.Application.Services;
 using GestaoDeConcessionaria.Domain.Entities;

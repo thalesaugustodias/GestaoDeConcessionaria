@@ -1,4 +1,4 @@
-﻿using GestaoDeConcessionaria.Application.Common;
+﻿using GestaoDeConcessionaria.Application.Common.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
@@ -47,6 +47,7 @@ namespace GestaoDeConcessionaria.Infrastructure.Common
         {
             _channel?.Dispose();
             _connection?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

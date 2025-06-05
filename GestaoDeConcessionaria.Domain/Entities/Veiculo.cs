@@ -8,7 +8,7 @@ namespace GestaoDeConcessionaria.Domain.Entities
     {
         public Veiculo() { }
 
-        public Veiculo(string modelo, int anoFabricacao, decimal preco, TipoVeiculo tipo, string descricao, Fabricante fabricante)
+        public Veiculo(string modelo, int anoFabricacao, decimal preco, TipoVeiculo tipo, string descricao, Fabricante fabricante, Concessionaria concessionaria)
         {
             Validar(modelo, anoFabricacao, preco, fabricante);
             Modelo = modelo;
@@ -19,6 +19,7 @@ namespace GestaoDeConcessionaria.Domain.Entities
             Fabricante = fabricante;
             FabricanteId = fabricante.Id;
             Ativo = true;
+            ConcessionariaId = concessionaria.Id;
         }
 
         [JsonInclude]
@@ -35,6 +36,9 @@ namespace GestaoDeConcessionaria.Domain.Entities
         public string Descricao { get; private set; }
         [JsonInclude]
         public int FabricanteId { get; private set; }
+        [JsonInclude]
+        public int ConcessionariaId { get; set; }
+        public Concessionaria Concessionaria { get; set; }
         [JsonInclude]
         public Fabricante Fabricante { get; private set; }
         [JsonInclude]
