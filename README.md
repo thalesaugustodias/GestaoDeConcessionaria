@@ -67,8 +67,8 @@ O sistema foi estruturado seguindo os princípios da **Clean Architecture** e **
 - **Princípios SOLID e Clean Code:**  
   Foram adotados os princípios SOLID para que o código seja modular, testável e de fácil manutenção. O uso de factories, mapeadores e injeção de dependências ajuda a manter o código limpo e intuitivo.
 
-- **Segurança e Autenticação:**  
-  A aplicação utiliza ASP.NET Identity e JWT para gerenciar a autenticação e autorização dos usuários, protegendo os endpoints e garantindo a segurança dos dados.
+- **Segurança e Autenticação:**
+  A aplicação utiliza ASP.NET Identity e JWT para gerenciar a autenticação e autorização dos usuários, protegendo os endpoints e garantindo a segurança dos dados. As configurações de token agora são carregadas em um objeto `JwtSettings` registrado via `IOptions`, o que facilita o gerenciamento seguro das chaves.
 
 - **Integração com APIs Externas e Caching:**  
   A integração com APIs externas, como a ViaCEP para validação de CEP, e a utilização de caching de memória distribuída são essenciais para otimizar o desempenho e proporcionar uma boa experiência ao usuário.

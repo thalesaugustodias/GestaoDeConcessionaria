@@ -1,7 +1,8 @@
 ﻿using GestaoDeConcessionaria.Application.Interfaces;
 using GestaoDeConcessionaria.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+using GestaoDeConcessionaria.Application;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,10 +10,10 @@ using System.Text;
 
 namespace GestaoDeConcessionaria.Application.Services
 {
-    public class UsuarioService(UserManager<Usuario> userManager, IConfiguration configuration) : IUsuarioService
+    public class UsuarioService(UserManager<Usuario> userManager, IOptions<JwtSettings> jwtOptions) : IUsuarioService
     {
         private readonly UserManager<Usuario> _userManager = userManager;
-        private readonly IConfiguration _configuration = configuration;
+        private readonly JwtSettings _jwt = jwtOptions.Value;
 
         public async Task<Usuario> RegistrarAsync(Usuario usuario, string senha)
         {
@@ -35,13 +36,13 @@ namespace GestaoDeConcessionaria.Application.Services
                 new Claim("role", usuario.NivelAcesso.ToString())
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Chave"] ?? ""));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Chave));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Emissor"],
-                audience: _configuration["Jwt:Publico"],
+                issuer: _jwt.Emissor,
+                audience: _jwt.Publico,
                 claims: claims,
-                expires: DateTime.Now.AddHours(3),
+                expires: DateTime.Now.AddHours(_jwt.ExpiracaoHoras),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

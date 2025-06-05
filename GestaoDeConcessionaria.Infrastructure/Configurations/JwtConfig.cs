@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using GestaoDeConcessionaria.Application;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -10,7 +11,10 @@ namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
     {
         public static IServiceCollection AddJwtConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
-            var chave = Encoding.UTF8.GetBytes(configuration["Jwt:Chave"]);
+            var section = configuration.GetSection("Jwt");
+            services.Configure<JwtSettings>(section);
+
+            var chave = Encoding.UTF8.GetBytes(section["Chave"] ?? string.Empty);
 
             services.AddAuthentication(options =>
             {
@@ -25,8 +29,8 @@ namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Emissor"],
-                    ValidAudience = configuration["Jwt:Publico"],
+                    ValidIssuer = section["Emissor"],
+                    ValidAudience = section["Publico"],
                     IssuerSigningKey = new SymmetricSecurityKey(chave)
                 };
             });
