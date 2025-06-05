@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using GestaoDeConcessionaria.Application.Commands.Fabricantes;
+using GestaoDeConcessionaria.Application.CQRS.Commands.Fabricantes;
 
 namespace GestaoDeConcessionaria.Application.Validators.Fabricantes
 {

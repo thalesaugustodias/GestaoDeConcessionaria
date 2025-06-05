@@ -1,8 +1,11 @@
 ﻿using FluentValidation;
+using GestaoDeConcessionaria.Application.Common;
 using GestaoDeConcessionaria.Application.Interfaces;
 using GestaoDeConcessionaria.Application.Services;
 using GestaoDeConcessionaria.Domain.Entities;
 using GestaoDeConcessionaria.Domain.Interfaces;
+using GestaoDeConcessionaria.Domain.Notificacoes;
+using GestaoDeConcessionaria.Infrastructure.Common;
 using GestaoDeConcessionaria.Infrastructure.Context;
 using GestaoDeConcessionaria.Infrastructure.Repository;
 using Microsoft.AspNetCore.Http;
@@ -44,12 +47,17 @@ namespace GestaoDeConcessionaria.IoC
             // HttpContextAccessor
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
+            services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
+
             // MediatR
             var myHandlers = AppDomain.CurrentDomain.Load("GestaoDeConcessionaria.Application");
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(myHandlers));
 
             // FluentValidation
             services.AddValidatorsFromAssembly(Assembly.Load("GestaoDeConcessionaria.Application"));
+
+            services.AddScoped<INotificacaoRepository, NotificacaoRepository>();
+
 
             return services;
         }

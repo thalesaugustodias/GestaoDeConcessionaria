@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GestaoDeConcessionaria.Domain\GestaoDeConcessionaria.Domain.csproj" />
-    <ProjectReference Include="..\GestaoDeConcessionaria.Infrastructure\GestaoDeConcessionaria.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

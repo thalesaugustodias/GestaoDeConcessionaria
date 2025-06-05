@@ -1,4 +1,4 @@
-﻿using GestaoDeConcessionaria.Application.Commands.Auth;
+﻿using GestaoDeConcessionaria.Application.CQRS.Commands.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using GestaoDeConcessionaria.Application.Queries.Relatorios;
+using GestaoDeConcessionaria.Application.CQRS.Queries.Relatorios;
 
 namespace GestaoDeConcessionaria.Application.Validators.Relatorios
 {

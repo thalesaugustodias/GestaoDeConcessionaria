@@ -1,4 +1,5 @@
 ﻿using GestaoDeConcessionaria.Application.Commands.Fabricantes;
+using GestaoDeConcessionaria.Application.CQRS.Commands.Fabricantes;
 using GestaoDeConcessionaria.Application.Queries.Fabricantes;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

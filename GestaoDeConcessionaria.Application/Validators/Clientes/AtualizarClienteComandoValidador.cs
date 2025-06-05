@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using GestaoDeConcessionaria.Application.Commands.Clientes;
+using GestaoDeConcessionaria.Application.CQRS.Commands.Clientes;
 using GestaoDeConcessionaria.Application.Extensions;
 
 namespace GestaoDeConcessionaria.Application.Validators.Clientes

@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using GestaoDeConcessionaria.Application.Commands.Auth;
+using GestaoDeConcessionaria.Application.CQRS.Commands.Auth;
 
 namespace GestaoDeConcessionaria.Application.Validators.Auth
 {

@@ -1,4 +1,4 @@
-﻿using GestaoDeConcessionaria.Application.Commands.Vendas;
+﻿using GestaoDeConcessionaria.Application.CQRS.Commands.Vendas;
 using GestaoDeConcessionaria.Application.Queries.Vendas;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

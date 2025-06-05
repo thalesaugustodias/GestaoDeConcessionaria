@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using GestaoDeConcessionaria.Application.Commands.Veiculos;
+using GestaoDeConcessionaria.Application.CQRS.Commands.Veiculos;
 
 namespace GestaoDeConcessionaria.Application.Validators.Veiculos
 {

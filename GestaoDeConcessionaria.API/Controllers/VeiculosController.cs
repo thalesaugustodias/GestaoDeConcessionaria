@@ -1,4 +1,5 @@
 ﻿using GestaoDeConcessionaria.Application.Commands.Veiculos;
+using GestaoDeConcessionaria.Application.CQRS.Commands.Veiculos;
 using GestaoDeConcessionaria.Application.Queries.Veiculos;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

@@ -1,18 +1,12 @@
-﻿using GestaoDeConcessionaria.Infrastructure.Configurations;
+﻿
 using Microsoft.Extensions.Options;
 
 namespace GestaoDeConcessionaria.Application.Services
 {
-    public class NotificacaoService
+    public class NotificacaoService(IOptions<TwilioConfig> twilioOptions, IOptions<SmtpConfig> smtpOptions)
     {
-        private readonly TwilioConfig _twilio;
-        private readonly SmtpConfig _smtp;
-
-        public NotificacaoService(IOptions<TwilioConfig> twilioOptions, IOptions<SmtpConfig> smtpOptions)
-        {
-            _twilio = twilioOptions.Value;
-            _smtp = smtpOptions.Value;
-        }
+        private readonly TwilioConfig _twilio = twilioOptions.Value;
+        private readonly SmtpConfig _smtp = smtpOptions.Value;
 
         public void EnviarSms()
         {
