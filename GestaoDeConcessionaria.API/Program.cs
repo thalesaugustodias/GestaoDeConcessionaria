@@ -1,6 +1,7 @@
 using GestaoDeConcessionaria.API.Filters;
 using GestaoDeConcessionaria.Application;
 using GestaoDeConcessionaria.Infrastructure.ApiConfigurations;
+using GestaoDeConcessionaria.Infrastructure.Configurations;
 using GestaoDeConcessionaria.Infrastructure.Context;
 using GestaoDeConcessionaria.IoC;
 using Microsoft.EntityFrameworkCore;

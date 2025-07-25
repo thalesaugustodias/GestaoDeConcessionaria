@@ -9,7 +9,7 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GestaoDeConcessionaria.Infrastructure.ApiConfigurations
+namespace GestaoDeConcessionaria.Infrastructure.Configurations
 {
     public static class ApiConfig
     {
